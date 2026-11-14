@@ -155,3 +155,11 @@ FunctionEnd
     Pop $0
   ${EndIf}
 !macroend
+
+!macro NSIS_HOOK_POSTUNINSTALL
+  ; Tauri quita «tuna-fonts» de HKCU\...\Run (abrir al iniciar Windows) salvo al
+  ; actualizar; aquí también lo que guarda el Administrador de tareas.
+  ${If} $UpdateMode <> 1
+    DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" "tuna-fonts"
+  ${EndIf}
+!macroend

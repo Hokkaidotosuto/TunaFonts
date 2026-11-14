@@ -39,6 +39,8 @@ export async function instalarApp() {
   if (nueva.portable) return invoke("abrir_web", { cual: "release" });
   if (!pendiente) return;
   const { relaunch } = await import("@tauri-apps/plugin-process");
+  // Si arrancó escondida con Windows, el instalador la reabriría escondida.
+  await invoke("marcar_mostrar_al_abrir").catch(() => {});
   nueva.estado = "downloading";
   nueva.bajado = 0;
   nueva.total = 0;

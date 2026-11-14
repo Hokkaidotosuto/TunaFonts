@@ -12,7 +12,7 @@ impl Drop for Limpieza {
         let hkcu = RegKey::predef(HKEY_CURRENT_USER);
         let _ = hkcu.delete_subkey_all(&self.0);
         // Y la carpeta de pruebas, si se ha quedado vacía.
-        let _ = hkcu.delete_subkey(r"Software	una-fonts-pruebas");
+        let _ = hkcu.delete_subkey(r"Software\tuna-fonts-pruebas");
     }
 }
 
@@ -28,6 +28,7 @@ fn instalar_desactivar_y_activar_una_de_usuario() {
         clave_usuario: format!(r"{base}\Fonts"),
         datos: tmp.path().join("datos"),
         tocar_windows: false,
+        de_windows: |_| true,
     };
     let fuente = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/GochiHand-Regular.ttf");
 
@@ -92,4 +93,48 @@ fn las_imprescindibles_no_se_tocan() {
     for f in ["Arial Narrow", "Georgia", "Times New Roman", "Segoe Print"] {
         assert!(!fuentes::es_imprescindible(f), "{f}");
     }
+}
+
+/// En la carpeta de fuentes del sistema, solo las que trae Windows van con
+/// candado; las instaladas a mano «para todos» (u Office) salen como de usuario.
+#[test]
+fn las_instaladas_para_todos_no_cuentan_como_del_sistema() {
+    let tmp = tempfile::tempdir().unwrap();
+    let ent = Entorno {
+        fuentes_sistema: tmp.path().join("sistema"),
+        fuentes_usuario: tmp.path().join("usuario"),
+        clave_sistema: r"Software	una-fonts-pruebas
+o-existe".into(),
+        clave_usuario: r"Software	una-fonts-pruebas
+o-existe".into(),
+        datos: tmp.path().join("datos"),
+        tocar_windows: false,
+        // Simula el propietario: solo «de-windows.ttf» es de TrustedInstaller.
+        de_windows: |p| p.file_name().is_some_and(|n| n == "de-windows.ttf"),
+    };
+    let fuente = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/GochiHand-Regular.ttf");
+    std::fs::create_dir_all(&ent.fuentes_sistema).unwrap();
+    std::fs::copy(&fuente, ent.fuentes_sistema.join("de-windows.ttf")).unwrap();
+    std::fs::copy(&fuente, ent.fuentes_sistema.join("a-mano.ttf")).unwrap();
+
+    let origen = |nombre: &str| {
+        fuentes::entradas(&ent, &[]).into_iter().find(|e| e.ruta.file_name().unwrap() == nombre).unwrap().origen
+    };
+    assert_eq!(origen("de-windows.ttf"), Origen::Sistema);
+    assert_eq!(origen("a-mano.ttf"), Origen::Usuario);
+
+    // Una de Windows que la app ya desactivó y volvió a activar (ahora es una
+    // copia, con otro propietario) sigue siendo del sistema.
+    let mut apuntadas = HashSet::new();
+    apuntadas.insert(fuentes::clave_ruta(&ent.fuentes_sistema.join("a-mano.ttf")));
+    fuentes::poner_de_windows_apuntadas(&ent, &apuntadas).unwrap();
+    assert_eq!(origen("a-mano.ttf"), Origen::Sistema);
+}
+
+/// En un Windows de verdad, Arial es de TrustedInstaller.
+#[test]
+fn arial_es_de_trustedinstaller() {
+    let windir = std::env::var_os("WINDIR").unwrap();
+    let arial = Path::new(&windir).join("Fonts").join("arial.ttf");
+    assert_eq!(tunafonts_lib::win::de_trustedinstaller(&arial), Some(true));
 }

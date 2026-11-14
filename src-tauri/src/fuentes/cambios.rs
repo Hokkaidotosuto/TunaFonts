@@ -16,6 +16,7 @@ use std::{
 use super::{
     cache::Cache, clave_ruta, de_la_app, es_imprescindible, guardadas, leer::Cara, poner_de_la_app, poner_guardadas,
     poner_respaldadas, registro, respaldadas, sistema, Entorno, Entrada, Guardada, Origen,
+    de_windows_apuntadas, origen_en_sistema, poner_de_windows_apuntadas,
 };
 use crate::win;
 
@@ -250,6 +251,16 @@ fn op_sistema(ent: &Entorno, e: &Entrada, activar: bool) -> Option<sistema::Op> 
 
 /// Lanza las operaciones con permisos y deja apuntado lo que ha salido bien.
 pub fn aplicar_sistema(ent: &Entorno, ops: &[sistema::Op], r: &mut Resultado) {
+    // El origen de las que se desactivan, antes de moverlas: luego ya no son el archivo original.
+    let app_antes = de_la_app(ent);
+    let mut apuntadas = de_windows_apuntadas(ent);
+    let origenes: Vec<Origen> = ops
+        .iter()
+        .map(|op| match op {
+            sistema::Op::Desactivar { ruta, .. } => origen_en_sistema(ent, ruta, &app_antes, &apuntadas),
+            _ => Origen::Sistema,
+        })
+        .collect();
     let resp = match sistema::pedir(ent, ops) {
         Ok(x) => x,
         Err(e) => {
@@ -272,7 +283,7 @@ pub fn aplicar_sistema(ent: &Entorno, ops: &[sistema::Op], r: &mut Resultado) {
     r.reiniciar |= resp.reiniciar;
     let mut resp_list = respaldadas(ent);
     let mut app = de_la_app(ent);
-    for (op, err) in ops.iter().zip(resp.hechas.iter()) {
+    for ((op, err), origen) in ops.iter().zip(resp.hechas.iter()).zip(origenes) {
         if let Some(err) = err {
             let n = match op {
                 sistema::Op::Desactivar { ruta, .. } | sistema::Op::Activar { ruta, .. } | sistema::Op::Instalar { ruta, .. } => nombre_archivo(ruta),
@@ -288,7 +299,9 @@ pub fn aplicar_sistema(ent: &Entorno, ops: &[sistema::Op], r: &mut Resultado) {
         r.cambiadas += 1;
         match op {
             sistema::Op::Desactivar { ruta, respaldo, valor, datos } => {
-                let origen = if app.contains(&clave_ruta(ruta)) { Origen::Biblioteca } else { Origen::Sistema };
+                if origen == Origen::Sistema {
+                    apuntadas.insert(clave_ruta(ruta));
+                }
                 resp_list.push(Guardada { archivo: respaldo.clone(), original: ruta.clone(), valor: valor.clone(), datos: datos.clone(), origen });
             }
             sistema::Op::Activar { ruta, respaldo, .. } => {
@@ -306,6 +319,9 @@ pub fn aplicar_sistema(ent: &Entorno, ops: &[sistema::Op], r: &mut Resultado) {
                 }
             }
         }
+    }
+    if let Err(e) = poner_de_windows_apuntadas(ent, &apuntadas) {
+        r.errores.push(e);
     }
     if let Err(e) = poner_respaldadas(ent, &resp_list) {
         r.errores.push(e);

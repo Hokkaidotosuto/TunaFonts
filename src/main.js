@@ -7,8 +7,9 @@ import "@fontsource/archivo/latin-700.css";
 import "@fontsource/jetbrains-mono/latin-400.css";
 import "@fontsource/jetbrains-mono/latin-500.css";
 import "@fontsource/gochi-hand/latin-400.css";
+// Solo para el botón de Ko-fi, que usa su misma letra.
+import "@fontsource/poppins/latin-600.css";
 import "./app.css";
-import App from "./App.svelte";
 import { iniciarAyudas } from "./lib/ayudas.js";
 
 // Que parezca una app y no una web: sin menú contextual del navegador (salvo
@@ -23,5 +24,11 @@ if (import.meta.env.PROD) {
   });
 }
 
-iniciarAyudas();
-mount(App, { target: document.getElementById("app") });
+// El menú de la bandeja carga solo lo suyo: si importara App, también cargaría
+// los ajustes y acabaría pisando los guardados.
+if (window.__TUNA__?.menu) {
+  import("./Menu.svelte").then(({ default: Menu }) => mount(Menu, { target: document.getElementById("app") }));
+} else {
+  iniciarAyudas();
+  import("./App.svelte").then(({ default: App }) => mount(App, { target: document.getElementById("app") }));
+}

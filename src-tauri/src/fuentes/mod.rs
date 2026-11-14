@@ -47,6 +47,9 @@ pub struct Entorno {
     pub datos: PathBuf,
     /// false en los tests: ni AddFontResourceEx ni WM_FONTCHANGE.
     pub tocar_windows: bool,
+    /// ¿Este archivo de la carpeta de fuentes del sistema lo trae Windows?
+    /// En la app, mira si es de TrustedInstaller; en los tests se simula.
+    pub de_windows: fn(&Path) -> bool,
 }
 
 impl Entorno {
@@ -66,6 +69,7 @@ impl Entorno {
             clave_usuario: registro::CLAVE.into(),
             datos,
             tocar_windows: true,
+            de_windows: propietario_windows,
         }
     }
     pub fn desactivadas(&self) -> PathBuf {
@@ -126,6 +130,34 @@ pub fn respaldadas(ent: &Entorno) -> Vec<Guardada> {
 pub fn poner_respaldadas(ent: &Entorno, v: &[Guardada]) -> Result<(), String> {
     escribir_json(&ent.datos.join("respaldo-sistema.json"), &v)
 }
+/// De Windows si su dueño es TrustedInstaller; si no se puede leer, por si acaso, también.
+/// Las de Office y las instaladas a mano «para todos» son de Administradores.
+pub fn propietario_windows(ruta: &Path) -> bool {
+    crate::win::de_trustedinstaller(ruta).unwrap_or(true)
+}
+
+/// Fuentes de Windows que tuna-fonts ha desactivado alguna vez. Al volver a
+/// activarlas se copian de nuevo y dejan de ser de TrustedInstaller, así que
+/// se apuntan aquí para que sigan contando como del sistema (y con candado).
+pub fn de_windows_apuntadas(ent: &Entorno) -> HashSet<String> {
+    leer_json(&ent.datos.join("de-windows.json"))
+}
+pub fn poner_de_windows_apuntadas(ent: &Entorno, v: &HashSet<String>) -> Result<(), String> {
+    escribir_json(&ent.datos.join("de-windows.json"), v)
+}
+
+/// Origen de un archivo de la carpeta de fuentes del sistema.
+pub fn origen_en_sistema(ent: &Entorno, ruta: &Path, app: &HashSet<String>, apuntadas: &HashSet<String>) -> Origen {
+    let k = clave_ruta(ruta);
+    if app.contains(&k) {
+        Origen::Biblioteca
+    } else if apuntadas.contains(&k) || (ent.de_windows)(ruta) {
+        Origen::Sistema
+    } else {
+        Origen::Usuario
+    }
+}
+
 /// Archivos que ha instalado tuna-fonts (soltados o de Google Fonts): origen "biblioteca".
 pub fn de_la_app(ent: &Entorno) -> HashSet<String> {
     leer_json(&ent.datos.join("instaladas-por-app.json"))
@@ -159,6 +191,7 @@ pub fn entradas(ent: &Entorno, vigiladas: &[PathBuf]) -> Vec<Entrada> {
     let mut fuera: Vec<Entrada> = Vec::new();
     let mut vistas: HashSet<String> = HashSet::new();
     let app = de_la_app(ent);
+    let apuntadas = de_windows_apuntadas(ent);
     // Del sistema desactivadas cuyo archivo aún no se ha podido borrar (hasta reiniciar).
     for g in respaldadas(ent) {
         vistas.insert(clave_ruta(&g.original));
@@ -169,16 +202,18 @@ pub fn entradas(ent: &Entorno, vigiladas: &[PathBuf]) -> Vec<Entrada> {
         }
     };
 
-    // Sistema: lo registrado en HKLM y lo que haya suelto en la carpeta.
+    // Carpeta del sistema: lo registrado en HKLM y lo que haya suelto. Las que trae
+    // Windows son «sistema»; las de Office o instaladas a mano «para todos», «usuario».
     for (nombre, datos) in registro::leer(registro::hklm(), &ent.clave_sistema) {
         let ruta = resolver(&datos, &ent.fuentes_sistema);
         if es_fuente(&ruta) && ruta.is_file() {
-            let origen = if app.contains(&clave_ruta(&ruta)) { Origen::Biblioteca } else { Origen::Sistema };
+            let origen = origen_en_sistema(ent, &ruta, &app, &apuntadas);
             meter(Entrada { ruta, origen, activa: true, valor: Some((nombre, datos)) }, &mut fuera);
         }
     }
     for ruta in listar(&ent.fuentes_sistema, false) {
-        meter(Entrada { ruta, origen: Origen::Sistema, activa: true, valor: None }, &mut fuera);
+        let origen = origen_en_sistema(ent, &ruta, &app, &apuntadas);
+        meter(Entrada { ruta, origen, activa: true, valor: None }, &mut fuera);
     }
 
     // Usuario: lo registrado en HKCU está activo; lo suelto en su carpeta, no.

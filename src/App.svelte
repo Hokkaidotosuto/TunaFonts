@@ -20,7 +20,7 @@
   import Especimen from "./vistas/Especimen.svelte";
   import Comparar from "./vistas/Comparar.svelte";
 
-  import { ajustes, enTauri } from "./lib/ajustes.svelte.js";
+  import { ajustes, enTauri, temaActual } from "./lib/ajustes.svelte.js";
   import { t, locale } from "./lib/i18n.svelte.js";
   import { avisar } from "./lib/avisos.svelte.js";
   import { fuentes, iniciarFuentes, actualizarFuentes, alternar, instalar, estiloDe, ponerLista, llamar } from "./lib/fuentes.svelte.js";
@@ -317,6 +317,17 @@
     }
   }
 
+  // ---- bandeja ----
+  // El menú de la bandeja enseña cómo están las fuentes, con el tema y el idioma de la app.
+  $effect(() => {
+    if (!enTauri) return;
+    const n = carpetas.length;
+    const estado = n === 1 ? t("menu.carpeta") : n ? t("menu.carpetas", { n }) : t("menu.activas", { a: activasN, n: instaladas.length });
+    const datos = { estado, carpetas: n, tema: temaActual(), idioma: ajustes.idioma };
+    const id = setTimeout(() => llamar("poner_bandeja", datos).catch(() => {}), 300);
+    return () => clearTimeout(id);
+  });
+
   // ---- arranque ----
   onMount(() => {
     iniciarBiblioteca();
@@ -325,6 +336,20 @@
     precargar(muestra);
     if (!enTauri) return;
     llamar("carpetas").then((l) => (carpetas = l));
+    // Lo que se pide desde el menú de la bandeja (la ventana ya está a la vista).
+    let quitarBandeja;
+    import("@tauri-apps/api/event").then(async ({ listen }) => {
+      quitarBandeja = await listen("bandeja", ({ payload }) => {
+        if (payload === "buscar") {
+          ajustesEn = null;
+          if (seccion !== "instaladas") irA("instaladas");
+          setTimeout(() => buscador?.focus(), 50);
+        } else if (payload === "descubrir") {
+          ajustesEn = null;
+          irA("descubrir");
+        } else if (payload === "ajustes") ajustesEn = "ajustes";
+      });
+    });
     let quitar;
     import("@tauri-apps/api/webview").then(async ({ getCurrentWebview }) => {
       // Archivos arrastrados desde fuera (el explorador). Lo de dentro de la
@@ -344,7 +369,10 @@
         }
       });
     });
-    return () => quitar?.();
+    return () => {
+      quitar?.();
+      quitarBandeja?.();
+    };
   });
 </script>
 

@@ -38,6 +38,69 @@ pub fn carpeta_conocida(id: &windows_sys::core::GUID) -> Option<std::path::PathB
     }
 }
 
+/// SID de NT SERVICE\TrustedInstaller, dueño de las fuentes que trae Windows
+/// (también las de «características a petición»).
+const SID_TRUSTEDINSTALLER: &str = "S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464";
+
+/// ¿El archivo es de TrustedInstaller? None si no se puede leer su propietario.
+/// Se recuerda por sesión: la carpeta de fuentes del sistema tiene cientos.
+pub fn de_trustedinstaller(ruta: &Path) -> Option<bool> {
+    use std::{collections::HashMap, sync::Mutex};
+    use windows_sys::Win32::{
+        Foundation::{LocalFree, ERROR_SUCCESS},
+        Security::{
+            Authorization::{ConvertSidToStringSidW, GetNamedSecurityInfoW, SE_FILE_OBJECT},
+            OWNER_SECURITY_INFORMATION, PSECURITY_DESCRIPTOR,
+        },
+    };
+    static VISTOS: Mutex<Option<HashMap<String, bool>>> = Mutex::new(None);
+    let clave = ruta.to_string_lossy().to_lowercase();
+    if let Some(&v) = VISTOS.lock().ok()?.get_or_insert_with(HashMap::new).get(&clave) {
+        return Some(v);
+    }
+    let nombre = ancho(ruta);
+    let mut propietario = std::ptr::null_mut();
+    let mut sd: PSECURITY_DESCRIPTOR = std::ptr::null_mut();
+    // SAFETY: nombre acaba en 0; sd lo reserva Windows y se libera con LocalFree;
+    // propietario apunta dentro de sd y no se usa después de liberarlo.
+    let es = unsafe {
+        let r = GetNamedSecurityInfoW(
+            nombre.as_ptr(),
+            SE_FILE_OBJECT,
+            OWNER_SECURITY_INFORMATION,
+            &mut propietario,
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            &mut sd,
+        );
+        if r != ERROR_SUCCESS || propietario.is_null() {
+            if !sd.is_null() {
+                LocalFree(sd as _);
+            }
+            return None;
+        }
+        let mut texto: *mut u16 = std::ptr::null_mut();
+        let ok = ConvertSidToStringSidW(propietario, &mut texto) != 0 && !texto.is_null();
+        let es = ok && {
+            let mut n = 0;
+            while *texto.add(n) != 0 {
+                n += 1;
+            }
+            String::from_utf16_lossy(std::slice::from_raw_parts(texto, n)) == SID_TRUSTEDINSTALLER
+        };
+        if !texto.is_null() {
+            LocalFree(texto as _);
+        }
+        LocalFree(sd as _);
+        es
+    };
+    if let Ok(mut m) = VISTOS.lock() {
+        m.get_or_insert_with(HashMap::new).insert(clave, es);
+    }
+    Some(es)
+}
+
 pub fn ancho(s: impl AsRef<OsStr>) -> Vec<u16> {
     s.as_ref().encode_wide().chain(Some(0)).collect()
 }

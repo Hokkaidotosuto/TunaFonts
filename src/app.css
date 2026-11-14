@@ -90,6 +90,11 @@ svg.lucide { display: block; flex: none; }
 .ayuda.arriba { translate: 0 3px; }
 .ayuda.vista { opacity: 1; translate: 0 0; }
 
+/* Cambio de tema de golpe (ver ajustes.svelte.js); el interruptor sí se desliza. */
+.cambiando-tema *:not(.pastilla),
+.cambiando-tema *::before,
+.cambiando-tema *::after { transition: none !important; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

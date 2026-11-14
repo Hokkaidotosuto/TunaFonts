@@ -1,3 +1,5 @@
+mod bandeja;
+mod inicio;
 pub mod fuentes;
 mod google;
 pub mod win;
@@ -381,6 +383,8 @@ fn abrir_web(cual: String) -> Result<(), String> {
         "fallo" => "https://github.com/atunfrito/tuna-fonts/issues/new/choose",
         "tuna-dlp" => "https://github.com/atunfrito/tuna-dlp",
         "repo" => "https://github.com/atunfrito/tuna-fonts",
+        // Solo el recuadro para donar (el que usa el botón flotante de Ko-fi), sin el resto de la página.
+        "kofi" => "https://ko-fi.com/atunfrito?hidefeed=true&widget=true&embed=true",
         _ => return Err(format!("dirección desconocida: {cual}")),
     };
     std::process::Command::new("explorer").arg(url).spawn().map(|_| ()).map_err(err)
@@ -445,16 +449,21 @@ pub fn modo_elevado() -> Option<i32> {
 pub fn run() {
     let app = tauri::Builder::default()
         // Una sola tuna-fonts a la vez: dos moviendo las mismas fuentes se pisarían.
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            if let Some(v) = app.get_webview_window("main") {
-                let _ = v.unminimize();
-                let _ = v.set_focus();
-            }
-        }))
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| bandeja::mostrar(app)))
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        // La X y Alt+F4: a la bandeja (las carpetas vigiladas siguen disponibles),
+        // salvo que en ajustes se haya elegido cerrar del todo.
+        .on_window_event(|w, ev| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = ev {
+                if w.label() == "main" && leer_ajustes(w.app_handle())["alCerrar"].as_str() != Some("salir") {
+                    api.prevent_close();
+                    let _ = w.hide();
+                }
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             fuentes_guardadas,
             fuentes_actualizar,
@@ -470,10 +479,18 @@ pub fn run() {
             google_instalar,
             es_portable,
             abrir_web,
+            bandeja::poner_bandeja,
+            bandeja::estado_bandeja,
+            bandeja::accion_bandeja,
+            inicio::inicio_windows,
+            inicio::poner_inicio_windows,
+            inicio::marcar_mostrar_al_abrir,
         ])
         .setup(|app| {
             let handle = app.handle().clone();
             let datos = app.path().app_data_dir()?;
+            // Con Windows (--oculta) se queda en la bandeja; tras actualizarse, no.
+            let oculta = inicio::arrancar_oculta(&datos);
             let ent = Entorno::real(datos.clone());
             let cache = Cache::cargar(&datos.join("fonts-cache.json"));
             let carpetas: Vec<PathBuf> = fs::read(datos.join("carpetas.json"))
@@ -510,6 +527,8 @@ pub fn run() {
                 Some("light") => false,
                 _ => windows_oscuro(),
             };
+            let tema = if oscuro { "dark" } else { "light" };
+            bandeja::crear(&handle, tema, ajustes["idioma"].as_str().unwrap_or(idioma_windows()))?;
             let inicio = json!({
                 "ajustes": ajustes,
                 "version": app.package_info().version.to_string(),
@@ -518,6 +537,7 @@ pub fn run() {
 
             WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
                 .title("tuna-fonts")
+                .visible(!oculta)
                 .inner_size(1280.0, 820.0)
                 .min_inner_size(960.0, 600.0)
                 .center()

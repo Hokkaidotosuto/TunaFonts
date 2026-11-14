@@ -24,7 +24,7 @@ Your fonts, tidy and at hand. No accounts, no ads, nothing sent anywhere.
 - **Discover** the whole Google Fonts catalog (about 1,900 families) and install any of them in one click.
 - **Favorites and collections** to keep the fonts for each project together, and a selection bar to act on many at once. Favorites work as a wishlist too: heart a Google font in Discover and it waits in your favorites, not installed, until you want it.
 - **Specimen** with the real character map of the font (click a glyph to copy it), and **compare** 2 to 4 fonts side by side.
-- **Watched folders**: point it at a folder and its fonts are available while the app is open, without installing them.
+- **Watched folders**: point it at a folder and its fonts are available while the app is open, without installing them. Closing the window keeps it in the tray, so they stay available, and it can start with Windows (off by default).
 - **Categories** worked out from the font itself: sans serif, serif, script, display, monospace and other scripts.
 - **Ctrl + mouse wheel** changes the preview size anywhere in the list.
 - Light and dark theme, Spanish and English (it starts in your Windows language), editable keyboard shortcuts.
@@ -56,6 +56,7 @@ Fonts that come with Windows are **locked by default** and hidden from the list,
 - Changing a system font asks for admin rights (UAC) each time.
 - Before removing one, tuna-fonts keeps a copy of the file and its registry entry, and **"restore all system fonts"** puts everything back.
 - The fonts Windows itself needs (Segoe UI and friends) stay locked no matter what.
+- Fonts installed "for all users", by you or by programs like Office, aren't Windows fonts: they show up in the list without a lock (changing them still asks for admin rights).
 
 ## Privacy
 
@@ -78,6 +79,7 @@ Every release from 0.2.0 on is built by GitHub Actions straight from the tagged 
 
 **Stay in the loop:** *Watch → Custom → Releases* on this repository to get an email for each new version.
 **Found a bug?** [Open an issue](https://github.com/atunfrito/tuna-fonts/issues/new/choose) — English or Spanish.
+**Like it?** tuna-fonts is free and will stay that way. If it saves you time, you can [buy me a coffee on Ko-fi](https://ko-fi.com/atunfrito).
 
 ### Build it yourself
 
@@ -142,17 +144,17 @@ App data (cache, deactivated fonts, system font backups) is kept in `%APPDATA%\e
 - **Descubrir**: el catálogo entero de Google Fonts, con instalación en un clic.
 - **Favoritas y colecciones** para tener juntas las fuentes de cada proyecto, y una barra de selección para hacer cosas con varias a la vez.
 - **Espécimen** con el mapa de caracteres real (clic en un carácter para copiarlo) y **comparar** de 2 a 4 fuentes.
-- **Carpetas vigiladas**: sus fuentes están disponibles mientras la app está abierta, sin instalarlas.
+- **Carpetas vigiladas**: sus fuentes están disponibles mientras la app está abierta, sin instalarlas. Al cerrar la ventana se queda en la bandeja, así que siguen disponibles, y puede arrancar con Windows (apagado por defecto).
 - Favoritas también como lista de deseos: el corazón en Descubrir la guarda en favoritas sin instalarla.
 - Control + rueda del ratón cambia el tamaño de las muestras.
 - Tema claro y oscuro, español e inglés (arranca en el idioma de Windows), y atajos de teclado editables.
 - Se actualiza sola: avisa de la versión nueva y se instala con un clic. Solo acepta paquetes firmados con la clave del proyecto.
 
-Las fuentes del sistema vienen **bloqueadas y ocultas** por defecto. Se pueden desbloquear en ajustes: pide permisos cada vez, guarda una copia antes de quitar nada y hay un botón para restaurarlas todas. Las imprescindibles para Windows no se tocan nunca.
+Las fuentes del sistema vienen **bloqueadas y ocultas** por defecto. Se pueden desbloquear en ajustes: pide permisos cada vez, guarda una copia antes de quitar nada y hay un botón para restaurarlas todas. Las imprescindibles para Windows no se tocan nunca. Las instaladas «para todos los usuarios», por ti o por programas como Office, no cuentan como del sistema: salen en la lista sin candado (cambiarlas pide permisos igualmente).
 
 Para instalarla, baja `tuna-fonts_x.y.z_x64-setup.exe` de la [última versión](https://github.com/atunfrito/tuna-fonts/releases/latest) y ábrelo. Se instala solo para tu usuario, en `%LOCALAPPDATA%\Programs\tuna-fonts`, sin pedir permisos. Si tenías la 0.1.0, el instalador nuevo quita la vieja y conserva todos tus datos, también las fuentes desactivadas. Como el instalador no está firmado, Windows SmartScreen puede avisar la primera vez: «Más información → Ejecutar de todas formas».
 
-Lo único que sale a internet: Google Fonts cuando usas Descubrir, y una consulta a GitHub al abrir para ver si hay versión nueva (se desactiva en ajustes). Para enterarte de cada versión: *Watch → Custom → Releases*. ¿Algún fallo? [Abre un aviso](https://github.com/atunfrito/tuna-fonts/issues/new/choose), en español o en inglés.
+Lo único que sale a internet: Google Fonts cuando usas Descubrir, y una consulta a GitHub al abrir para ver si hay versión nueva (se desactiva en ajustes). Para enterarte de cada versión: *Watch → Custom → Releases*. ¿Algún fallo? [Abre un aviso](https://github.com/atunfrito/tuna-fonts/issues/new/choose), en español o en inglés. Y si te ahorra tiempo, puedes [invitarme a un café en Ko-fi](https://ko-fi.com/atunfrito); la app es y seguirá siendo gratis.
 
 Para compilarla tú hace falta Node 22+, Rust y WebView2:
 

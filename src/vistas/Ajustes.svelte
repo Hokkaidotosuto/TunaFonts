@@ -2,7 +2,9 @@
   // Modal de ajustes con tres pestañas: ajustes · atajos · acerca de.
   import { SlidersHorizontal, Keyboard, Info, X, ArrowUpRight } from "@lucide/svelte";
   import Segmentado from "../componentes/Segmentado.svelte";
-  import { ajustes, temaActual, ponerTema, version, ATAJOS } from "../lib/ajustes.svelte.js";
+  // La taza oficial de Ko-fi va dentro del código (Vite la incrusta como data:), sin pedir nada a nadie.
+  import tazaKofi from "../assets/kofi.svg?inline";
+  import { ajustes, temaActual, ponerTema, ponerIdioma, version, ATAJOS } from "../lib/ajustes.svelte.js";
   import { t } from "../lib/i18n.svelte.js";
   import { avisar } from "../lib/avisos.svelte.js";
   import { respaldadas, restaurarSistema, fuentes } from "../lib/fuentes.svelte.js";
@@ -35,6 +37,23 @@
     { id: "acerca", texto: () => t("about"), icono: Info },
   ];
 
+  // Abrir al iniciar Windows: lo que diga el registro, no un ajuste guardado
+  // (se puede apagar desde el Administrador de tareas).
+  let inicioWin = $state(false);
+  if (enTauri) {
+    import("@tauri-apps/api/core").then(({ invoke }) => invoke("inicio_windows").then((v) => (inicioWin = v)).catch(() => {}));
+  }
+  async function ponerInicio(v) {
+    if (!enTauri) return;
+    const { invoke } = await import("@tauri-apps/api/core");
+    try {
+      inicioWin = await invoke("poner_inicio_windows", { activar: v });
+      if (inicioWin !== v) avisar("err", t("err.inicio"), "");
+    } catch (e) {
+      avisar("err", t("err.inicio"), String(e));
+    }
+  }
+
   let nRespaldo = $state(0);
   respaldadas().then((n) => (nRespaldo = n)).catch(() => {});
 
@@ -54,10 +73,12 @@
     { etiqueta: t("aj.tema"), pista: t("aj.temaHint"), valor: temaActual(), elegir: ponerTema, opciones: [["light", t("aj.claro")], ["dark", t("aj.oscuro")]] },
     { etiqueta: t("aj.instalar"), pista: t("aj.instalarHint"), valor: ajustes.instalarPara, elegir: (v) => (ajustes.instalarPara = v), opciones: [["usuario", t("aj.soloYo")], ["todos", t("aj.todos")]] },
     { etiqueta: t("aj.abrir"), pista: t("aj.abrirHint"), valor: ajustes.alAbrir, elegir: (v) => (ajustes.alAbrir = v), opciones: [["instaladas", t("sec.instaladas")], ["favoritas", t("sec.favoritas")]] },
+    { etiqueta: t("aj.cerrar"), pista: t("aj.cerrarHint"), valor: ajustes.alCerrar, elegir: (v) => (ajustes.alCerrar = v), opciones: [["bandeja", t("aj.bandeja")], ["salir", t("aj.salir")]] },
+    { etiqueta: t("aj.inicio"), pista: t("aj.inicioHint"), valor: inicioWin, elegir: ponerInicio, opciones: [[true, t("aj.si")], [false, t("aj.no")]] },
     { etiqueta: t("aj.sistema"), pista: t("aj.sistemaHint"), valor: ajustes.desbloqueadas, elegir: desbloquear, opciones: [[false, t("aj.bloqueadas")], [true, t("aj.desbloquear")]] },
     { etiqueta: t("aj.ver"), pista: t("aj.verHint"), valor: ajustes.verBloqueadas, elegir: (v) => (ajustes.verBloqueadas = v), opciones: [[false, t("aj.ocultas")], [true, t("aj.visibles")]] },
     { etiqueta: t("aj.buscarAct"), pista: t("aj.buscarActHint"), valor: ajustes.buscarActualizaciones, elegir: (v) => (ajustes.buscarActualizaciones = v), opciones: [[true, t("aj.si")], [false, t("aj.no")]] },
-    { etiqueta: t("aj.idioma"), pista: "", valor: ajustes.idioma, elegir: (v) => (ajustes.idioma = v), opciones: [["es", "español"], ["en", "english"]] },
+    { etiqueta: t("aj.idioma"), pista: "", valor: ajustes.idioma, elegir: ponerIdioma, opciones: [["es", "español"], ["en", "english"]] },
   ]);
 
   // ---- atajos ----
@@ -98,7 +119,7 @@
     avisar("ok", t("ok.atajosRestaurados"), "");
   }
 
-  const novedades = $derived([t("nov.1"), t("nov.2"), t("nov.3"), t("nov.4"), t("nov.5")]);
+  const novedades = $derived([t("nov.4"), t("nov.1"), t("nov.2"), t("nov.3")]);
 </script>
 
 <svelte:window onkeydowncapture={tecla} />
@@ -201,6 +222,18 @@
             <div class="linea"><span class="punto"></span><span>{n}</span></div>
           {/each}
         </div>
+        <!-- Apoyo con Ko-fi: una tarjeta tranquila, sin avisos ni ventanas que interrumpan.
+             El botón es el oficial de Ko-fi (su taza y su letra), dibujado aquí: la app no carga nada de fuera. -->
+        <div class="apoyo">
+          <span class="apoyo-txt">
+            <b>{t("acerca.apoyar")}</b>
+            <span>{t("acerca.apoyarTexto")}</span>
+          </span>
+          <button type="button" class="kofi" onclick={() => abrirWeb("kofi")}>
+            <img class="taza" src={tazaKofi} width="27" height="22" alt="" draggable="false" />
+            {t("acerca.kofi")}
+          </button>
+        </div>
         <div class="enlaces">
           <div class="enlace">
             <span class="l">{t("acerca.masTuna")}</span>
@@ -210,7 +243,6 @@
             <span class="l">{t("acerca.fallo")}</span>
             <button type="button" class="link" onclick={() => abrirWeb("fallo")}>{t("acerca.abrirFallo")}<ArrowUpRight size={12} strokeWidth={2} /></button>
           </div>
-          <!-- Aquí irá el enlace de donaciones (GitHub Sponsors o Ko-fi) cuando exista la cuenta. -->
         </div>
         <div class="firma">
           <span class="marca cueva">{t("madeIn")}</span>
@@ -331,6 +363,37 @@
   .nov { display: flex; flex-direction: column; gap: 6px; }
   .linea { display: flex; gap: 9px; align-items: baseline; font-size: 12.5px; line-height: 1.45; }
   .punto { flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--red); transform: translateY(-2px); }
+  .apoyo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 14px 14px 16px;
+    border-radius: 12px;
+    background: var(--chip);
+  }
+  .apoyo-txt { display: flex; flex-direction: column; gap: 2px; font-size: 12px; line-height: 1.4; color: var(--ink2); }
+  .apoyo-txt b { font-size: 13px; font-weight: 600; color: var(--ink); }
+  /* El botón oficial de Ko-fi (oscuro; en el tema oscuro, el beige), dibujado
+     aquí con su taza y su letra: la app no carga nada de Ko-fi. */
+  .taza { display: block; flex: none; }
+  .kofi {
+    height: 40px;
+    padding: 0 18px 0 11px;
+    border: 1.5px solid #202020;
+    border-radius: 11px;
+    background: #202020;
+    color: #fff;
+    font: 600 14px "Poppins", var(--sans);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    white-space: nowrap;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .kofi:hover { opacity: 0.88; }
+  .kofi:active { transform: translateY(1px); }
+  :global([data-theme="dark"]) .kofi { background: #f2eee6; color: #202020; }
   .enlaces { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 1px solid var(--line); }
   .enlace { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--ink2); }
   .link { display: inline-flex; align-items: center; gap: 3px; padding: 0; border: 0; background: transparent; color: var(--ink); font: 600 12.5px var(--sans); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; }
