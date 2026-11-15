@@ -38,6 +38,12 @@ Your fonts, tidy and at hand. No accounts, no ads, nothing sent anywhere.
 
 <img src="docs/theme-and-view.gif" alt="Switching between light and dark theme and between list and grid view">
 
+### From the tray
+
+Close the window and tuna-fonts stays next to the clock, so fonts from your watched folders keep working. Click the icon to open it, or right-click for a quick menu.
+
+<img src="docs/tray-menu.gif" alt="Right-clicking the tuna-fonts icon next to the clock opens a small menu: open tuna-fonts, search for a font, discover fonts, settings and quit">
+
 ### More screenshots
 
 | | |
