@@ -134,6 +134,14 @@ The workflow checks the tag matches the version, runs the tests, builds the inst
 
 App data (cache, deactivated fonts, system font backups) is kept in `%APPDATA%\es.atunfrito.tunafonts`.
 
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/). *(Applied for: releases are not signed yet. Until then, check the SHA-256 listed in each release.)*
+
+- **Committers and reviewers:** [atunfrito](https://github.com/atunfrito), the only maintainer.
+- **Approvers:** [atunfrito](https://github.com/atunfrito). Every signed release is built by GitHub Actions from a tagged commit of this repository ([`release.yml`](.github/workflows/release.yml)) and approved by hand.
+- **Privacy:** tuna-fonts doesn't collect or send any data about you or your fonts. The only network requests are the ones described in [Privacy](#privacy): Google Fonts, when you use Discover, and one request to GitHub on startup to check for updates, which you can turn off in the settings.
+
 ## License
 
 [MIT](LICENSE). The fonts bundled for the interface (Archivo, JetBrains Mono and Gochi Hand) are under the SIL Open Font License; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
@@ -161,6 +169,8 @@ Las fuentes del sistema vienen **bloqueadas y ocultas** por defecto. Se pueden d
 Para instalarla, baja `tuna-fonts_x.y.z_x64-setup.exe` de la [última versión](https://github.com/atunfrito/tuna-fonts/releases/latest) y ábrelo. Se instala solo para tu usuario, en `%LOCALAPPDATA%\Programs\tuna-fonts`, sin pedir permisos. Si tenías la 0.1.0, el instalador nuevo quita la vieja y conserva todos tus datos, también las fuentes desactivadas. Como el instalador no está firmado, Windows SmartScreen puede avisar la primera vez: «Más información → Ejecutar de todas formas».
 
 Lo único que sale a internet: Google Fonts cuando usas Descubrir, y una consulta a GitHub al abrir para ver si hay versión nueva (se desactiva en ajustes). Para enterarte de cada versión: *Watch → Custom → Releases*. ¿Algún fallo? [Abre un aviso](https://github.com/atunfrito/tuna-fonts/issues/new/choose), en español o en inglés. Y si te ahorra tiempo, puedes [invitarme a un café en Ko-fi](https://ko-fi.com/atunfrito); la app es y seguirá siendo gratis.
+
+**Firma del código:** se ha pedido la firma gratuita de [SignPath Foundation](https://signpath.org/) para proyectos de código abierto (ver *Code signing policy* arriba). Mientras tanto, cada versión trae su SHA-256.
 
 Para compilarla tú hace falta Node 22+, Rust y WebView2:
 
