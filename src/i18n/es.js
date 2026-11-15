@@ -37,6 +37,8 @@ export default {
   whatsNew: "NOVEDADES DE LA {v}",
   "nov.1": "las fuentes instaladas para todos los usuarios (y las de office) ya salen, sin candado",
   "nov.2": "si venías de la 0.1.0 con windows en inglés, ahora sale en inglés",
+  "nov.6": "las categorías sin ninguna fuente ya no salen en la barra lateral",
+  "nov.5": "el botón de ko-fi abre tu navegador (en la 0.2.1 abría una carpeta)",
   "nov.4": "al cerrar la ventana se queda en la bandeja, y puede arrancar con windows: las carpetas vigiladas siguen funcionando",
   "nov.3": "un enlace a ko-fi aquí en acerca de, por si quieres apoyarla",
   madeIn: "hecho en la cueva",

@@ -101,6 +101,16 @@ pub fn de_trustedinstaller(ruta: &Path) -> Option<bool> {
     Some(es)
 }
 
+/// Abre una dirección web en el navegador predeterminado.
+pub fn abrir_url(url: &str) -> Result<(), String> {
+    use windows_sys::Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_SHOWNORMAL};
+    let (verbo, dir) = (ancho("open"), ancho(url));
+    // SAFETY: cadenas acabadas en 0 que viven durante la llamada; sin ventana padre.
+    let r = unsafe { ShellExecuteW(std::ptr::null_mut(), verbo.as_ptr(), dir.as_ptr(), std::ptr::null(), std::ptr::null(), SW_SHOWNORMAL) };
+    // ShellExecute devuelve un valor mayor que 32 si ha ido bien.
+    if r as isize > 32 { Ok(()) } else { Err(format!("no se ha podido abrir {url} ({})", r as isize)) }
+}
+
 pub fn ancho(s: impl AsRef<OsStr>) -> Vec<u16> {
     s.as_ref().encode_wide().chain(Some(0)).collect()
 }

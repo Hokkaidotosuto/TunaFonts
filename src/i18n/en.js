@@ -36,6 +36,8 @@ export default {
   whatsNew: "WHAT'S NEW IN {v}",
   "nov.1": "fonts installed for all users (and office ones) now show up, without a lock",
   "nov.2": "if you came from 0.1.0 with windows in english, it now speaks english",
+  "nov.6": "categories with no fonts no longer show in the sidebar",
+  "nov.5": "the ko-fi button opens your browser (0.2.1 opened a folder instead)",
   "nov.4": "closing the window keeps it in the tray, and it can start with windows, so watched folders keep working",
   "nov.3": "a ko-fi link here in about, in case you want to support it",
   madeIn: "made in the cave",

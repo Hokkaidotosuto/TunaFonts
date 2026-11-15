@@ -387,7 +387,9 @@ fn abrir_web(cual: String) -> Result<(), String> {
         "kofi" => "https://ko-fi.com/atunfrito?hidefeed=true&widget=true&embed=true",
         _ => return Err(format!("dirección desconocida: {cual}")),
     };
-    std::process::Command::new("explorer").arg(url).spawn().map(|_| ()).map_err(err)
+    // Con ShellExecute y no con «explorer url»: el Explorador no reconoce como web
+    // una dirección con parámetros (?a=1&b=2) y abría la carpeta Documentos.
+    win::abrir_url(url)
 }
 
 // ---- arranque ----

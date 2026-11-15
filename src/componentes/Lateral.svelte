@@ -13,6 +13,7 @@
   } = $props();
 
   const CATEGORIAS = ["sans", "serif", "script", "display", "mono", "otros"];
+  const categoriasVisibles = $derived(CATEGORIAS.filter((c) => (catCuentas[c] ?? 0) > 0 || cat === c));
 
   let borrador = $state("");
   let campo = $state();
@@ -135,12 +136,15 @@
       {/each}
     </div>
 
-    <div class="grupo">
-      <span class="titulo">{t("grupo.categorias")}</span>
-      {#each CATEGORIAS as c (c)}
-        {@render item(t("cat." + c), cat === c, () => oncat(cat === c ? null : c), catCuentas[c] ?? 0)}
-      {/each}
-    </div>
+    <!-- Solo las categorías con alguna fuente (y la elegida, aunque se quede vacía, para poder quitarla). -->
+    {#if categoriasVisibles.length}
+      <div class="grupo">
+        <span class="titulo">{t("grupo.categorias")}</span>
+        {#each categoriasVisibles as c (c)}
+          {@render item(t("cat." + c), cat === c, () => oncat(cat === c ? null : c), catCuentas[c] ?? 0)}
+        {/each}
+      </div>
+    {/if}
   </nav>
 
   <div class="pie">
