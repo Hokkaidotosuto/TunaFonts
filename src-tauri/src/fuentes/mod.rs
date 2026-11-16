@@ -50,6 +50,9 @@ pub struct Entorno {
     /// ¿Este archivo de la carpeta de fuentes del sistema lo trae Windows?
     /// En la app, mira si es de TrustedInstaller; en los tests se simula.
     pub de_windows: fn(&Path) -> bool,
+    /// Nombres de archivo (en minúsculas) de las fuentes que trae Office: su
+    /// instalador las copia a la carpeta del sistema y cuentan como del sistema.
+    pub de_programas: HashSet<String>,
 }
 
 impl Entorno {
@@ -70,6 +73,7 @@ impl Entorno {
             datos,
             tocar_windows: true,
             de_windows: propietario_windows,
+            de_programas: fuentes_de_office(),
         }
     }
     pub fn desactivadas(&self) -> PathBuf {
@@ -146,16 +150,37 @@ pub fn poner_de_windows_apuntadas(ent: &Entorno, v: &HashSet<String>) -> Result<
     escribir_json(&ent.datos.join("de-windows.json"), v)
 }
 
+/// Office (Click-to-Run) guarda una copia de cada fuente que instala en
+/// `Microsoft Office\root\vfs\Fonts\private`; con eso se reconocen en la
+/// carpeta del sistema aunque no sean de TrustedInstaller.
+fn fuentes_de_office() -> HashSet<String> {
+    use windows_sys::Win32::UI::Shell::{FOLDERID_ProgramFiles, FOLDERID_ProgramFilesX86};
+    let mut v = HashSet::new();
+    for id in [&FOLDERID_ProgramFiles, &FOLDERID_ProgramFilesX86] {
+        let Some(pf) = crate::win::carpeta_conocida(id) else { continue };
+        for ruta in listar(&pf.join(r"Microsoft Office\root\vfs\Fonts\private"), false) {
+            if let Some(n) = ruta.file_name() {
+                v.insert(n.to_string_lossy().to_lowercase());
+            }
+        }
+    }
+    v
+}
+
 /// Origen de un archivo de la carpeta de fuentes del sistema.
 pub fn origen_en_sistema(ent: &Entorno, ruta: &Path, app: &HashSet<String>, apuntadas: &HashSet<String>) -> Origen {
     let k = clave_ruta(ruta);
     if app.contains(&k) {
         Origen::Biblioteca
-    } else if apuntadas.contains(&k) || (ent.de_windows)(ruta) {
+    } else if apuntadas.contains(&k) || (ent.de_windows)(ruta) || de_programa(ent, ruta) {
         Origen::Sistema
     } else {
         Origen::Usuario
     }
+}
+
+fn de_programa(ent: &Entorno, ruta: &Path) -> bool {
+    ruta.file_name().is_some_and(|n| ent.de_programas.contains(&n.to_string_lossy().to_lowercase()))
 }
 
 /// Archivos que ha instalado tuna-fonts (soltados o de Google Fonts): origen "biblioteca".

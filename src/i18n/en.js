@@ -126,6 +126,8 @@ export default {
   "vacio.borrar": "clear search",
   "vacio.lista": "nothing here",
   "vacio.colTexto": "drag fonts onto the collection in the sidebar or use “collection” in the selection bar.",
+  "vacio.leyendo": "reading the folder…",
+  "vacio.leyendoTexto": "the first time it reads every font inside, subfolders included. with thousands of fonts it takes a while.",
   "vacio.carTexto": "put .ttf, .otf or .ttc files in the folder and they will show up here.",
 
   "ok.activada": "{n} activated.",

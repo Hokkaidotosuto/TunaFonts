@@ -312,15 +312,20 @@ async fn anadir_carpeta(app: AppHandle) -> Result<Option<Vec<Carpeta>>, String> 
     Ok(Some(lista_carpetas(&estado)))
 }
 
+/// En segundo plano: si aún se están leyendo las fuentes de una carpeta grande,
+/// refrescar espera a que acabe, y en el hilo principal eso colgaba la ventana.
 #[tauri::command]
-fn quitar_carpeta(app: AppHandle, ruta: String) -> Vec<Carpeta> {
-    let estado = app.state::<Estado>();
-    estado.carpetas.lock().unwrap().retain(|c| fuentes::clave_ruta(c) != fuentes::clave_ruta(Path::new(&ruta)));
-    guardar_carpetas(&estado);
-    vigilar(&app);
-    // Descarga las de esa carpeta (refrescar ya no las ve).
-    let _ = estado.refrescar();
-    lista_carpetas(&estado)
+async fn quitar_carpeta(app: AppHandle, ruta: String) -> Result<Vec<Carpeta>, String> {
+    fondo(move || {
+        let estado = app.state::<Estado>();
+        estado.carpetas.lock().unwrap().retain(|c| fuentes::clave_ruta(c) != fuentes::clave_ruta(Path::new(&ruta)));
+        guardar_carpetas(&estado);
+        vigilar(&app);
+        // Descarga las de esa carpeta (refrescar ya no las ve).
+        let _ = estado.refrescar();
+        Ok(lista_carpetas(&estado))
+    })
+    .await
 }
 
 // ---- google fonts ----

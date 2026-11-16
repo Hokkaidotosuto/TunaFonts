@@ -29,6 +29,7 @@ fn instalar_desactivar_y_activar_una_de_usuario() {
         datos: tmp.path().join("datos"),
         tocar_windows: false,
         de_windows: |_| true,
+        de_programas: HashSet::new(),
     };
     let fuente = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/GochiHand-Regular.ttf");
 
@@ -103,25 +104,27 @@ fn las_instaladas_para_todos_no_cuentan_como_del_sistema() {
     let ent = Entorno {
         fuentes_sistema: tmp.path().join("sistema"),
         fuentes_usuario: tmp.path().join("usuario"),
-        clave_sistema: r"Software	una-fonts-pruebas
-o-existe".into(),
-        clave_usuario: r"Software	una-fonts-pruebas
-o-existe".into(),
+        clave_sistema: r"Software\tuna-fonts-pruebas\no-existe".into(),
+        clave_usuario: r"Software\tuna-fonts-pruebas\no-existe".into(),
         datos: tmp.path().join("datos"),
         tocar_windows: false,
         // Simula el propietario: solo «de-windows.ttf» es de TrustedInstaller.
         de_windows: |p| p.file_name().is_some_and(|n| n == "de-windows.ttf"),
+        // Y «de-office.ttf» la trae Office.
+        de_programas: ["de-office.ttf".to_string()].into(),
     };
     let fuente = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/GochiHand-Regular.ttf");
     std::fs::create_dir_all(&ent.fuentes_sistema).unwrap();
     std::fs::copy(&fuente, ent.fuentes_sistema.join("de-windows.ttf")).unwrap();
     std::fs::copy(&fuente, ent.fuentes_sistema.join("a-mano.ttf")).unwrap();
+    std::fs::copy(&fuente, ent.fuentes_sistema.join("DE-OFFICE.TTF")).unwrap();
 
     let origen = |nombre: &str| {
         fuentes::entradas(&ent, &[]).into_iter().find(|e| e.ruta.file_name().unwrap() == nombre).unwrap().origen
     };
     assert_eq!(origen("de-windows.ttf"), Origen::Sistema);
     assert_eq!(origen("a-mano.ttf"), Origen::Usuario);
+    assert_eq!(origen("DE-OFFICE.TTF"), Origen::Sistema);
 
     // Una de Windows que la app ya desactivó y volvió a activar (ahora es una
     // copia, con otro propietario) sigue siendo del sistema.

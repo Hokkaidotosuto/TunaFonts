@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { SvelteSet } from "svelte/reactivity";
-  import { Search, List, LayoutGrid, Folder, FolderOpen, Trash2, X, Heart, WifiOff, Layers, Type } from "@lucide/svelte";
+  import { Search, List, LayoutGrid, Folder, FolderOpen, Trash2, X, Heart, WifiOff, Layers, Type, LoaderCircle } from "@lucide/svelte";
 
   import Lateral from "./componentes/Lateral.svelte";
   import Controles from "./componentes/Controles.svelte";
@@ -46,6 +46,7 @@
   let borrando = $state(null);
   let soltando = $state(false);
   let carpetas = $state([]);
+  let leyendo = $state(null);
   let buscador = $state();
 
   const sinMovimiento = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -67,7 +68,8 @@
   // Las del sistema con candado no se enseñan salvo que se pida en ajustes
   // (en favoritas y colecciones sí: ahí las has puesto tú).
   const visible = (f) => ajustes.verBloqueadas || !bloqueada(f);
-  const enCarpeta = (f, ruta) => f.origen === "car" && f.archivos.some((a) => a.toLowerCase().startsWith(ruta.toLowerCase() + "\\"));
+  // Por archivo, no por origen: si la familia también está instalada, cuenta como instalada.
+  const enCarpeta = (f, ruta) => f.archivos.some((a) => a.toLowerCase().startsWith(ruta.toLowerCase() + "\\"));
   const favs = $derived(new Set(biblioteca.favoritas));
 
   // ---- listas ----
@@ -240,8 +242,14 @@
     if (!l) return;
     const nueva = l.find((c) => !carpetas.some((x) => x.ruta === c.ruta));
     carpetas = l;
-    await actualizarFuentes();
     if (nueva) irA("car:" + nueva.ruta);
+    // Una carpeta con miles de fuentes tarda en leerse: mientras, se dice.
+    leyendo = nueva?.ruta ?? null;
+    try {
+      await actualizarFuentes();
+    } finally {
+      leyendo = null;
+    }
     avisar("ok", t("ok.carpeta"), t("ok.carpetaTexto"));
   }
 
@@ -606,6 +614,8 @@
             q = b;
           }}
         />
+      {:else if carpeta && leyendo === carpeta}
+        <Vacio icono={LoaderCircle} girando titulo={t("vacio.leyendo")} texto={t("vacio.leyendoTexto")} />
       {:else}
         <Vacio icono={coleccion ? Layers : carpeta ? FolderOpen : Type} titulo={t("vacio.lista")} texto={coleccion ? t("vacio.colTexto") : carpeta ? t("vacio.carTexto") : ""} />
       {/if}

@@ -127,6 +127,8 @@ export default {
   "vacio.borrar": "borrar búsqueda",
   "vacio.lista": "aquí no hay nada",
   "vacio.colTexto": "arrastra fuentes a la colección en la barra lateral o usa «colección» en la barra de selección.",
+  "vacio.leyendo": "leyendo la carpeta…",
+  "vacio.leyendoTexto": "la primera vez lee todas las fuentes que tiene, también las de las subcarpetas. con miles de fuentes tarda un poco.",
   "vacio.carTexto": "mete .ttf, .otf o .ttc en la carpeta y saldrán aquí.",
 
   "ok.activada": "{n} activada.",

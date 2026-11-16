@@ -87,7 +87,10 @@
       <span class="titulo">{t("grupo.biblioteca")}</span>
       {@render item(t("sec.instaladas"), seccion === "instaladas", () => onseccion("instaladas"), cuentas.instaladas)}
       {@render item(t("sec.descubrir"), seccion === "descubrir", () => onseccion("descubrir"), cuentas.descubrir)}
-      {@render item(t("sec.favoritas"), seccion === "favoritas", () => onseccion("favoritas"), cuentas.favoritas, { rojo: true })}
+      <!-- Sin favoritas no sale (salvo si estás dentro): aparece con el primer corazón. -->
+      {#if cuentas.favoritas || seccion === "favoritas"}
+        {@render item(t("sec.favoritas"), seccion === "favoritas", () => onseccion("favoritas"), cuentas.favoritas, { rojo: true })}
+      {/if}
     </div>
 
     <div class="grupo">
