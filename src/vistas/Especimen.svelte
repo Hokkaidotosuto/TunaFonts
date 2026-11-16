@@ -1,9 +1,9 @@
 <script>
   // Espécimen: escala de tamaños, juegos de caracteres, el mapa de caracteres
   // real de la fuente (tabla cmap; clic para copiar), los estilos y la ruta.
-  import { ChevronLeft } from "@lucide/svelte";
+  import { ChevronLeft, FolderOpen } from "@lucide/svelte";
   import Corazon from "../componentes/Corazon.svelte";
-  import { estiloDe, caracteres } from "../lib/fuentes.svelte.js";
+  import { estiloDe, caracteres, mostrarEnExplorador } from "../lib/fuentes.svelte.js";
   import { avisar } from "../lib/avisos.svelte.js";
   import { t } from "../lib/i18n.svelte.js";
 
@@ -105,7 +105,12 @@
   </div>
 
   <div class="ruta">
-    {#each f.archivos as a (a)}<span>{a}</span>{/each}
+    {#each f.archivos as a (a)}
+      <button type="button" class="archivo" title={t("ruta.mostrar")} onclick={() => mostrarEnExplorador(a)}>
+        <span class="txt">{a}</span>
+        <FolderOpen size={13} strokeWidth={1.9} />
+      </button>
+    {/each}
   </div>
 </div>
 
@@ -165,5 +170,25 @@
   .glifo:hover { background: var(--ink); color: var(--win); transform: scale(1.06); }
   .estilo { display: flex; flex-direction: column; gap: 1px; padding: 6px 0; }
   .estilo .n { font-size: 10.5px; color: var(--ink3); }
-  .ruta { display: flex; flex-direction: column; gap: 4px; padding-top: 18px; border-top: 1px solid var(--line); font: 400 12px var(--mono); color: var(--ink2); user-select: text; }
+  .ruta { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding-top: 14px; border-top: 1px solid var(--line); }
+  /* Cada ruta abre el Explorador con el archivo seleccionado; la carpeta aparece al pasar el ratón. */
+  .archivo {
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: -8px;
+    padding: 4px 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ink2);
+    font: 400 12px var(--mono);
+    text-align: left;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .archivo .txt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .archivo :global(svg) { opacity: 0; transition: opacity 0.15s; }
+  .archivo:hover { background: var(--hov); color: var(--ink); }
+  .archivo:hover :global(svg), .archivo:focus-visible :global(svg) { opacity: 1; }
 </style>

@@ -158,6 +158,7 @@ export const ponerLista = (r) => poner(r.familias);
 
 export const respaldadas = () => llamar("respaldadas");
 export const caracteres = (ruta) => llamar("caracteres", { ruta });
+export const mostrarEnExplorador = (ruta) => llamar("mostrar_en_explorador", { ruta }).catch(() => {});
 export { llamar };
 
 // Fuera de Tauri (vite en el navegador): unos datos de muestra para ver la interfaz.

@@ -397,6 +397,27 @@ fn abrir_web(cual: String) -> Result<(), String> {
     win::abrir_url(url)
 }
 
+/// Abre el Explorador con el archivo de una fuente seleccionado. Solo acepta
+/// archivos de fuente que existan: la interfaz no puede abrir otra cosa.
+#[tauri::command]
+fn mostrar_en_explorador(ruta: String) -> Result<(), String> {
+    use std::os::windows::process::CommandExt;
+    let p = PathBuf::from(&ruta);
+    let es_fuente = p
+        .extension()
+        .and_then(|e| e.to_str())
+        .is_some_and(|e| matches!(e.to_ascii_lowercase().as_str(), "ttf" | "otf" | "ttc" | "otc"));
+    if !es_fuente || !p.is_file() || ruta.contains('"') {
+        return Err(format!("no es un archivo de fuente: {ruta}"));
+    }
+    // raw_arg: explorer interpreta él mismo «/select,"ruta"», con comillas por los espacios.
+    std::process::Command::new("explorer")
+        .raw_arg(format!("/select,\"{ruta}\""))
+        .spawn()
+        .map(|_| ())
+        .map_err(err)
+}
+
 // ---- arranque ----
 
 fn leer_ajustes(app: &AppHandle) -> Value {
@@ -492,6 +513,7 @@ pub fn run() {
             inicio::inicio_windows,
             inicio::poner_inicio_windows,
             inicio::marcar_mostrar_al_abrir,
+            mostrar_en_explorador,
         ])
         .setup(|app| {
             let handle = app.handle().clone();
