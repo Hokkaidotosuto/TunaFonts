@@ -4,8 +4,9 @@ import { ajustes } from "./ajustes.svelte.js";
 import es from "../i18n/es.js";
 import en from "../i18n/en.js";
 import zh from "../i18n/zh.js";
+import pt from "../i18n/pt.js";
 
-const TEXTOS = { es, en, zh };
+const TEXTOS = { es, en, zh, pt };
 
 // Cualquier valor que no sea una traducción conocida cae al español, que es el
 // idioma original del proyecto.
@@ -17,7 +18,7 @@ export function t(clave, vars) {
   return texto;
 }
 
-const LOCALES = { es: "es-ES", en: "en-US", zh: "zh-CN" };
+const LOCALES = { es: "es-ES", en: "en-US", zh: "zh-CN", pt: "pt-BR" };
 
 export const locale = () => LOCALES[idioma()];
 

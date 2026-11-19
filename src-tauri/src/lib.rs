@@ -465,6 +465,7 @@ fn idioma_windows() -> &'static str {
     match langid & 0x3ff {
         0x0a => "es",
         0x04 => "zh",
+        0x16 => "pt",
         _ => "en",
     }
 }

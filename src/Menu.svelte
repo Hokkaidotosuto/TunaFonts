@@ -8,9 +8,10 @@
   import es from "./i18n/es.js";
   import en from "./i18n/en.js";
   import zh from "./i18n/zh.js";
+  import pt from "./i18n/pt.js";
 
   let e = $state({ estado: "", carpetas: 0, tema: "", idioma: "" });
-  const TEXTOS = { es, en, zh };
+  const TEXTOS = { es, en, zh, pt };
   const tr = (clave) => (TEXTOS[e.idioma] ?? es)[clave] ?? es[clave] ?? clave;
   let abierto = $state(0);
 
@@ -21,7 +22,7 @@
     const aplicar = (x) => {
       e = x;
       if (x.tema) document.documentElement.dataset.theme = x.tema;
-      document.documentElement.lang = ["en", "zh"].includes(x.idioma) ? x.idioma : "es";
+      document.documentElement.lang = ["en", "zh", "pt"].includes(x.idioma) ? x.idioma : "es";
     };
     invoke("estado_bandeja").then(aplicar);
     const quitar = [
