@@ -54,8 +54,6 @@
   if (!sinMovimiento) setTimeout(() => (splash = false), 800);
 
   const muestraDefecto = $derived(ajustes.textoPrueba.trim() || t("defaultSample"));
-  // Texto para las fuentes sin hanzi: la muestra china en una fuente latina sale en cajas.
-  const muestraLatina = $derived(muestraPropia || ajustes.textoPrueba.trim() || t("defaultSampleLatin"));
   const muestra = $derived(muestraPropia || muestraDefecto);
   const tamano = $derived(ajustes.tamano);
 
