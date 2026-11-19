@@ -51,7 +51,7 @@
   }
   .fila:hover { background: var(--hov); }
   .txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .nombre { font-size: 10.5px; color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nombre { font-size: var(--fs-meta); color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   /* Recorta solo a lo ancho (para los «…»): por arriba y por abajo los adornos de las caligráficas pueden salirse. */
   .muestra { line-height: 1.38; padding-top: 0.2em; white-space: nowrap; overflow-x: clip; overflow-y: visible; text-overflow: ellipsis; }
   .falta { color: var(--ink2); font-weight: 600; }
@@ -70,12 +70,12 @@
     border: 0;
     background: var(--chip);
     color: var(--ink);
-    font: 600 12px var(--sans);
+    font: 600 var(--fs-small) var(--sans);
     transition: background-color 0.15s, color 0.15s;
   }
   .instalar:hover { background: var(--ink); color: var(--win); }
-  .pct { font-size: 12px; font-weight: 600; color: var(--ink2); }
-  .hecha { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--ink3); }
+  .pct { font-size: var(--fs-small); font-weight: 600; color: var(--ink2); }
+  .hecha { display: flex; align-items: center; gap: 5px; font-size: var(--fs-small); font-weight: 600; color: var(--ink3); }
   .barra { position: absolute; left: 60px; right: 24px; bottom: 0; height: 2px; background: var(--line); }
   .barra span { display: block; height: 100%; background: var(--red); transition: width 0.3s linear; }
 </style>

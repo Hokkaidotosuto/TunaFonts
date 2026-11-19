@@ -41,7 +41,7 @@
     animation: tf-up 0.2s ease-out;
   }
   .punto { flex: none; width: 8px; height: 8px; border-radius: 50%; }
-  .txt { flex: 1; font-size: 12.5px; line-height: 1.4; }
+  .txt { flex: 1; font-size: var(--fs-small); line-height: 1.4; }
   .txt b { font-weight: 600; }
   .txt span { color: var(--ink2); }
   button {

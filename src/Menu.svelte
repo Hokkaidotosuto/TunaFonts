@@ -92,7 +92,7 @@
   .cabeza img { display: block; flex: none; }
   .textos { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
   .marca { font-size: 17px; }
-  .estado { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .estado { display: flex; align-items: center; gap: 6px; font-size: var(--fs-small); color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .punto { width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--off); }
   .punto.vivo { background: var(--ok); }
 

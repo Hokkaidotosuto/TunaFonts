@@ -9,6 +9,14 @@
   --ok: #2f7a4c; --warn: #b7791f;
   --velo: rgba(15, 14, 13, 0.32);
 
+  /* Escala tipográfica de la interfaz. Cinco pasos, no más: los tamaños de
+     display (20/26/30/32/34/64) van aparte y se quedan literales. */
+  --fs-meta: 11px;     /* nombres de archivo, recuentos, versión, avisos legales */
+  --fs-small: 12px;    /* pistas, pastillas, meta, controles segmentados */
+  --fs-body: 13px;     /* texto corriente y etiquetas de fila */
+  --fs-lead: 15px;     /* lectura: muestra del comparador */
+  --fs-title: 18px;    /* título de página y del modal */
+
   --pastilla: 0 1px 2px rgba(0, 0, 0, 0.14);
   --flotante: 0 12px 30px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--line2);
   --desliza: left 0.26s cubic-bezier(0.3, 1.25, 0.5, 1);
@@ -34,7 +42,7 @@ html, body { height: 100%; margin: 0; overflow: hidden; }
 body {
   background: var(--win);
   color: var(--ink);
-  font: 400 13px/1.35 var(--sans);
+  font: 400 var(--fs-body)/1.35 var(--sans);
   -webkit-font-smoothing: antialiased;
   user-select: none;
   cursor: default;
@@ -56,7 +64,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 svg.lucide { display: block; flex: none; }
 
 .etiqueta {
-  font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em;
+  font-size: var(--fs-meta); font-weight: 600; letter-spacing: 0.1em;
   text-transform: uppercase; color: var(--ink3);
 }
 .marca { font-family: var(--mano); line-height: 1; letter-spacing: 0.01em; }
@@ -78,7 +86,7 @@ svg.lucide { display: block; flex: none; }
   border-radius: 7px;
   background: var(--ink);
   color: var(--win);
-  font: 600 11.5px/1.35 var(--sans);
+  font: 600 var(--fs-small)/1.35 var(--sans);
   letter-spacing: 0.005em;
   white-space: normal;
   pointer-events: none;
@@ -102,27 +110,27 @@ svg.lucide { display: block; flex: none; }
     transition-duration: 0.01ms !important;
   }
 }
-/* ---- Chino (zh) ----------------------------------------------------------
-   Windows 10 y 11 traen Microsoft YaHei también en instalaciones que no son
-   chinas, así que no se empaqueta ninguna fuente: basta con la pila. Noto Sans
-   SC queda detrás para quien lo tenga instalado.
-   1. Las etiquetas suben de 10.5px a 12px: a 10.5px los hanzi se ven como
-      manchas. Y el chino no tiene mayúsculas, así que el uppercase sobra.
-   2. El tracking de 0.1em sirve para el latín; en chino separa los trazos de
-      un mismo carácter, así que se aprieta a 0.02em.
+
+/* ---- Chino (zh): tipografía, sólo bajo <html lang="zh"> -------------------
+   Nada de esto toca el español ni el inglés.
+   1. Los rótulos de sección usaban medidas de versalita latina (10.5px,
+      tracking 0.08–0.1em, text-transform: uppercase). En hanzi eso se lee como
+      letras sueltas y desalineadas: suben a 12px, el tracking se aprieta y el
+      uppercase desaparece (el chino no tiene mayúsculas).
+   2. El tracking negativo sirve para apretar latín; en chino junta los trazos.
    3. La fuente china va primero en la pila. Si manda Archivo (latina), la caja
-      de línea usa su ascent/descent pero los hanzi los pinta la de respaldo, y
-      la tinta queda unos 2px por encima del centro.
+      de línea usa su ascent/descent pero los hanzi los pinta la fuente de
+      respaldo, y la tinta queda unos 2px por encima del centro.
    4. Recuentos y números comparten la pila para que la línea base cuadre con
       los hanzi de al lado.
    ------------------------------------------------------------------------ */
 :root:lang(zh) {
-  --sans: "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "PingFang SC", Archivo, "Segoe UI", sans-serif;
+  --sans: "Tuna Sans SC", "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", Archivo, "Segoe UI", sans-serif;
 }
 :root:lang(zh) .etiqueta,
 :root:lang(zh) aside .titulo,
 :root:lang(zh) .barra .tit {
-  font-size: 12px;
+  font-size: var(--fs-small);
   letter-spacing: 0.02em;
   text-transform: none;
 }
@@ -140,3 +148,4 @@ svg.lucide { display: block; flex: none; }
 :root:lang(zh) .que {
   line-height: 1;
 }
+

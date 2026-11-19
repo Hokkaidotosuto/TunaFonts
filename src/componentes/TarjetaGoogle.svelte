@@ -58,7 +58,7 @@
   }
   .aa span { display: block; line-height: 1; }
   .pie { display: flex; align-items: center; gap: 8px; }
-  .nombre { flex: 1; min-width: 0; font-size: 12px; font-weight: 500; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nombre { flex: 1; min-width: 0; font-size: var(--fs-small); font-weight: 500; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .instalar {
     flex: none;
     height: 20px;
@@ -67,11 +67,11 @@
     border: 0;
     background: var(--chip);
     color: var(--ink);
-    font: 600 11px var(--sans);
+    font: 600 var(--fs-meta) var(--sans);
     transition: background-color 0.15s, color 0.15s;
   }
   .instalar:hover { background: var(--ink); color: var(--win); }
-  .pct { flex: none; font-size: 11px; font-weight: 600; color: var(--ink2); }
+  .pct { flex: none; font-size: var(--fs-meta); font-weight: 600; color: var(--ink2); }
   .corazon {
     width: 22px;
     height: 22px;
