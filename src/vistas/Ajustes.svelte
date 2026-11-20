@@ -281,7 +281,7 @@
     border-radius: 6px;
     background: transparent;
     color: var(--ink2);
-    font: 500 13px var(--sans);
+    font: 500 var(--fs-body) var(--sans);
     text-align: left;
     transition: background-color 0.15s, color 0.15s;
   }
@@ -320,18 +320,18 @@
     justify-content: center;
   }
   .cerrar:hover { background: var(--line2); color: var(--ink); }
-  h2 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+  h2 { margin: 0; font-size: var(--fs-title); font-weight: 700; letter-spacing: -0.02em; }
   .fila { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
   .txt { display: flex; flex-direction: column; gap: 3px; }
-  .eti { font-size: 13.5px; font-weight: 600; }
-  .pista { font-size: 12px; color: var(--ink2); }
-  .pista.menos { font-size: 12.5px; }
+  .eti { font-size: var(--fs-body); font-weight: 600; }
+  .pista { font-size: var(--fs-small); color: var(--ink2); }
+  .pista.menos { font-size: var(--fs-small); }
   .prueba { display: flex; flex-direction: column; gap: 8px; }
-  .prueba input { height: 32px; padding: 0 10px; border-radius: 8px; border: 0; box-shadow: 0 0 0 1px var(--line2); background: var(--field); font: 500 13px var(--sans); color: var(--ink); outline: 0; }
-  .boton { flex: none; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--chip); color: var(--ink); font: 600 12px var(--sans); }
+  .prueba input { height: 32px; padding: 0 10px; border-radius: 8px; border: 0; box-shadow: 0 0 0 1px var(--line2); background: var(--field); font: 500 var(--fs-body) var(--sans); color: var(--ink); outline: 0; }
+  .boton { flex: none; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--chip); color: var(--ink); font: 600 var(--fs-small) var(--sans); }
   .boton:hover:not(:disabled) { background: var(--ink); color: var(--win); }
   .boton.suelto { align-self: flex-start; }
-  .atajos { display: grid; grid-template-columns: auto 1fr; gap: 10px 14px; font-size: 13px; color: var(--ink2); }
+  .atajos { display: grid; grid-template-columns: auto 1fr; gap: 10px 14px; font-size: var(--fs-body); color: var(--ink2); }
   .teclas { justify-self: start; display: flex; gap: 3px; padding: 4px; margin: -4px; border: 0; border-radius: 8px; background: transparent; transition: background-color 0.15s, box-shadow 0.15s; }
   button.teclas:hover { background: var(--hov); }
   .teclas.grabando { box-shadow: 0 0 0 2px var(--ink); }
@@ -344,7 +344,7 @@
     border-radius: 5px;
     background: var(--chip);
     box-shadow: inset 0 -1px 0 var(--line2);
-    font: 600 11px var(--sans);
+    font: 600 var(--fs-meta) var(--sans);
     color: var(--ink);
     display: inline-flex;
     align-items: center;
@@ -354,14 +354,14 @@
   .acerca img { display: block; }
   .nombre { display: flex; flex-direction: column; gap: 4px; }
   .grande { font-size: 32px; }
-  .ver { font: 500 12px var(--mono); color: var(--ink2); }
-  .tagline { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink2); }
+  .ver { font: 500 var(--fs-small) var(--mono); color: var(--ink2); }
+  .tagline { margin: 0; font-size: var(--fs-body); line-height: 1.5; color: var(--ink2); }
   .numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .dato { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-radius: 10px; background: var(--chip); }
   .dato .n { font-size: 20px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
-  .dato .l { font-size: 11.5px; color: var(--ink2); }
+  .dato .l { font-size: var(--fs-small); color: var(--ink2); }
   .nov { display: flex; flex-direction: column; gap: 6px; }
-  .linea { display: flex; gap: 9px; align-items: baseline; font-size: 12.5px; line-height: 1.45; }
+  .linea { display: flex; gap: 9px; align-items: baseline; font-size: var(--fs-small); line-height: 1.5; }
   .punto { flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--red); transform: translateY(-2px); }
   .apoyo {
     display: grid;
@@ -372,8 +372,8 @@
     border-radius: 12px;
     background: var(--chip);
   }
-  .apoyo-txt { display: flex; flex-direction: column; gap: 2px; font-size: 12px; line-height: 1.4; color: var(--ink2); }
-  .apoyo-txt b { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .apoyo-txt { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-small); line-height: 1.4; color: var(--ink2); }
+  .apoyo-txt b { font-size: var(--fs-body); font-weight: 600; color: var(--ink); }
   /* El botón oficial de Ko-fi (oscuro; en el tema oscuro, el beige), dibujado
      aquí con su taza y su letra: la app no carga nada de Ko-fi. */
   .taza { display: block; flex: none; }
@@ -384,7 +384,7 @@
     border-radius: 11px;
     background: #202020;
     color: #fff;
-    font: 600 14px "Poppins", var(--sans);
+    font: 600 var(--fs-body) "Poppins", var(--sans);
     display: flex;
     align-items: center;
     gap: 9px;
@@ -395,10 +395,10 @@
   .kofi:active { transform: translateY(1px); }
   :global([data-theme="dark"]) .kofi { background: #f2eee6; color: #202020; }
   .enlaces { display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 1px solid var(--line); }
-  .enlace { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--ink2); }
-  .link { display: inline-flex; align-items: center; gap: 3px; padding: 0; border: 0; background: transparent; color: var(--ink); font: 600 12.5px var(--sans); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; }
+  .enlace { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: var(--fs-small); color: var(--ink2); }
+  .link { display: inline-flex; align-items: center; gap: 3px; padding: 0; border: 0; background: transparent; color: var(--ink); font: 600 var(--fs-small) var(--sans); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; }
   .link:hover { text-decoration-color: var(--ink); }
   .firma { flex: none; margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; }
-  .cueva { font-size: 18px; color: var(--red); }
-  .copy { font: 400 10.5px var(--mono); color: var(--ink3); }
+  .cueva { font-size: var(--fs-title); color: var(--red); }
+  .copy { font: 400 var(--fs-meta) var(--mono); color: var(--ink3); }
 </style>

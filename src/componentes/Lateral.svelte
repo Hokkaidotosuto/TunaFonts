@@ -185,11 +185,11 @@
   }
   .cabeza { flex: none; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 8px; }
   .cabeza img { display: block; flex: none; }
-  .cabeza .marca { display: flex; align-items: center; height: 24px; font-size: 18px; transform: translateY(1px); }
+  .cabeza .marca { display: flex; align-items: center; height: 24px; font-size: var(--fs-title); transform: translateY(1px); }
   nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0 -6px; padding: 0 6px 6px; }
   .grupo { display: flex; flex-direction: column; gap: 1px; margin-top: 14px; }
   .grupo:first-child { margin-top: 2px; }
-  .titulo { padding: 0 10px 6px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3); }
+  .titulo { padding: 0 10px 6px; font-size: var(--fs-meta); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3); }
   .item {
     display: flex;
     align-items: center;
@@ -200,7 +200,7 @@
     border-radius: 6px;
     background: transparent;
     color: var(--ink2);
-    font: 500 13px var(--sans);
+    font: 500 var(--fs-body) var(--sans);
     text-align: left;
     transition: background-color 0.15s, color 0.15s, box-shadow 0.15s;
   }
@@ -221,7 +221,7 @@
   .mas :global(svg) { display: block; }
   .mas:hover { background: var(--hov); color: var(--ink); }
   .texto { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 1px; }
-  .cuenta { margin-left: auto; font-size: 11.5px; color: var(--ink3); }
+  .cuenta { margin-left: auto; font-size: var(--fs-small); color: var(--ink3); }
   .renombrar {
     height: 30px;
     padding: 0 10px;
@@ -229,14 +229,14 @@
     border-radius: 6px;
     background: var(--field);
     box-shadow: 0 0 0 1.5px var(--red);
-    font: 600 13px var(--sans);
+    font: 600 var(--fs-body) var(--sans);
     color: var(--ink);
     outline: 0;
     width: 100%;
   }
   .renombrar::placeholder { color: var(--ink3); font-weight: 500; }
   .pie { flex: none; display: flex; flex-direction: column; gap: 10px; padding: 10px 4px 0; }
-  .nota { font-size: 11.5px; color: var(--ink3); padding: 0 6px; }
+  .nota { font-size: var(--fs-small); color: var(--ink3); padding: 0 6px; }
   .fila { display: flex; align-items: center; gap: 6px; }
   .ajustes {
     flex: 1;
@@ -249,10 +249,10 @@
     border-radius: 8px;
     background: transparent;
     color: var(--ink2);
-    font: 600 12.5px var(--sans);
+    font: 600 var(--fs-small) var(--sans);
     transition: background-color 0.15s, color 0.15s;
   }
   .ajustes:hover { background: var(--hov); color: var(--ink); }
-  .version { align-self: flex-start; padding: 0 6px; border: 0; background: transparent; color: var(--ink3); font: 500 11px var(--mono); transition: color 0.15s; }
+  .version { align-self: flex-start; padding: 0 6px; border: 0; background: transparent; color: var(--ink3); font: 500 var(--fs-meta) var(--mono); transition: color 0.15s; }
   .version:hover { color: var(--ink); }
 </style>

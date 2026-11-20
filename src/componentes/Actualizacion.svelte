@@ -52,11 +52,11 @@
     animation: tf-up 0.25s ease-out;
   }
   .ico { color: var(--ink2); display: flex; padding-top: 1px; }
-  .txt { display: flex; flex-direction: column; gap: 2px; font-size: 12px; line-height: 1.35; }
+  .txt { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-small); line-height: 1.35; }
   .txt b { font-weight: 600; }
   .txt span { color: var(--ink2); }
   .botones { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 4px; }
-  button { height: 24px; padding: 0 10px; border-radius: 999px; border: 0; font: 600 11.5px var(--sans); transition: background-color 0.15s, color 0.15s; }
+  button { height: 24px; padding: 0 10px; border-radius: 999px; border: 0; font: 600 var(--fs-small) var(--sans); transition: background-color 0.15s, color 0.15s; }
   .no { background: transparent; color: var(--ink2); }
   .no:hover { background: var(--hov); color: var(--ink); }
   .si { background: var(--ink); color: var(--win); }

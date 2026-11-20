@@ -536,7 +536,7 @@
             onelegir={(v) => (filtro = v)}
             ancho={74}
             alto={22}
-            fuente="600 11.5px"
+            fuente="600 12px"
           />
         {:else if vistaNormal}
           <Segmentado
@@ -546,7 +546,7 @@
             onelegir={(v) => (orden = v)}
             ancho={84}
             alto={22}
-            fuente="600 11.5px"
+            fuente="600 12px"
           />
         {/if}
         {#if coleccion && vistaNormal}
@@ -705,19 +705,19 @@
   }
   .buscar { flex: 0 0 190px; }
   .prueba { flex: 1 1 auto; min-width: 0; max-width: 360px; }
-  .campo input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: 500 12.5px var(--sans); color: var(--ink); }
-  .a { font: 700 12px var(--sans); color: var(--ink3); }
+  .campo input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: 500 var(--fs-small) var(--sans); color: var(--ink); }
+  .a { font: 700 var(--fs-small) var(--sans); color: var(--ink3); }
   .reset { width: 16px; height: 16px; border: 0; border-radius: 50%; background: var(--line2); color: var(--win); padding: 0; display: flex; align-items: center; justify-content: center; flex: none; }
   .tamano { flex: none; display: flex; align-items: center; gap: 8px; margin-left: 8px; }
-  .tamano .pq { font: 600 10px var(--sans); }
-  .tamano .gr { font: 600 15px var(--sans); }
-  .tamano .n { width: 22px; font-size: 11.5px; color: var(--ink3); }
+  .tamano .pq { font: 600 var(--fs-meta) var(--sans); }
+  .tamano .gr { font: 600 var(--fs-lead) var(--sans); }
+  .tamano .n { width: 22px; font-size: var(--fs-small); color: var(--ink3); }
   .rango { -webkit-appearance: none; appearance: none; width: 90px; height: 2px; background: var(--line2); border-radius: 2px; outline: none; }
   .rango::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--ink); border: 0; cursor: pointer; }
   .vista { margin-right: 12px; display: flex; }
 
   .titulo { flex: none; display: flex; align-items: center; gap: 8px; padding: 10px 24px 8px; min-height: 46px; }
-  .cuenta { font-size: 10.5px; color: var(--ink3); }
+  .cuenta { font-size: var(--fs-meta); color: var(--ink3); }
   .derecha { margin-left: auto; display: flex; align-items: center; gap: 2px; }
   .sep { width: 1px; height: 16px; background: var(--line2); margin: 0 6px; }
   .pild {
@@ -727,7 +727,7 @@
     border-radius: 999px;
     background: var(--chip);
     color: var(--ink);
-    font: 600 11.5px var(--sans);
+    font: 600 var(--fs-small) var(--sans);
     display: flex;
     align-items: center;
     gap: 5px;
@@ -738,8 +738,8 @@
   .pild.borrar { background: transparent; color: var(--ink2); padding: 0 10px 0 8px; }
   .pild.borrar:hover { background: var(--hov); }
   .pild.borrar.seguro { background: var(--red); color: #fff; }
-  .pild.blanca { height: 26px; padding: 0 12px; background: var(--win); box-shadow: 0 0 0 1px var(--line2); font-size: 12px; }
-  .pild.clara { height: 26px; padding: 0 12px; background: transparent; color: var(--ink2); font-size: 12px; }
+  .pild.blanca { height: 26px; padding: 0 12px; background: var(--win); box-shadow: 0 0 0 1px var(--line2); font-size: var(--fs-small); }
+  .pild.clara { height: 26px; padding: 0 12px; background: transparent; color: var(--ink2); font-size: var(--fs-small); }
   .pild.clara:hover { background: var(--hov); color: var(--ink); }
   .aviso-carpeta {
     flex: none;
@@ -750,7 +750,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 12.5px;
+    font-size: var(--fs-small);
     line-height: 1.45;
     color: var(--ink2);
   }
@@ -759,8 +759,8 @@
   .soltar { position: absolute; inset: 0; z-index: 9; padding: 14px; background: var(--win); animation: tf-fade 0.15s ease-out; }
   .marco { height: 100%; border: 1.5px dashed var(--line2); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; }
   .marco img { display: block; }
-  .st { font-size: 17px; font-weight: 700; }
-  .sx { font-size: 13.5px; color: var(--ink2); }
+  .st { font-size: var(--fs-title); font-weight: 700; }
+  .sx { font-size: var(--fs-body); color: var(--ink2); }
 
   .fantasma {
     position: fixed;
@@ -770,7 +770,7 @@
     border-radius: 999px;
     background: var(--ink);
     color: var(--win);
-    font: 600 12px var(--sans);
+    font: 600 var(--fs-small) var(--sans);
     white-space: nowrap;
   }
 

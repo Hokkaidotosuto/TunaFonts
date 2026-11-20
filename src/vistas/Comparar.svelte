@@ -35,7 +35,7 @@
     border: 0;
     background: var(--chip);
     color: var(--ink);
-    font: 600 12.5px var(--sans);
+    font: 600 var(--fs-small) var(--sans);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -44,8 +44,8 @@
   .volver:hover { background: var(--line2); }
   .una { flex: none; display: flex; flex-direction: column; gap: 4px; padding: 14px 0 18px; border-top: 1px solid var(--line); }
   .cab { display: flex; align-items: center; gap: 10px; }
-  .nombre { font-size: 12px; font-weight: 600; }
-  .meta { font-size: 11.5px; color: var(--ink3); }
+  .nombre { font-size: var(--fs-small); font-weight: 600; }
+  .meta { font-size: var(--fs-small); color: var(--ink3); }
   .quitar {
     margin-left: auto;
     width: 24px;
@@ -61,5 +61,5 @@
   .quitar:hover { background: var(--hov); color: var(--ink); }
   /* Recorta solo a lo ancho (para los «…»): por arriba y por abajo los adornos de las caligráficas pueden salirse. */
   .linea { line-height: 1.38; white-space: nowrap; overflow-x: clip; overflow-y: visible; text-overflow: ellipsis; }
-  .parrafo { font-size: 15px; line-height: 1.55; color: var(--ink2); max-width: 70ch; }
+  .parrafo { font-size: var(--fs-lead); line-height: 1.55; color: var(--ink2); max-width: 70ch; }
 </style>

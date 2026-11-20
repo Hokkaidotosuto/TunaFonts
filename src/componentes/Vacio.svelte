@@ -22,7 +22,7 @@
   @keyframes girar { to { rotate: 360deg; } }
   @media (prefers-reduced-motion: reduce) { .girando { animation: none; } }
   .txt { display: flex; flex-direction: column; gap: 6px; max-width: 360px; }
-  .titulo { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
-  .texto { font-size: 13.5px; line-height: 1.5; color: var(--ink2); text-wrap: pretty; }
-  button { height: 30px; padding: 0 14px; border-radius: 999px; border: 0; background: var(--ink); color: var(--win); font: 600 12.5px var(--sans); }
+  .titulo { font-size: var(--fs-title); font-weight: 700; letter-spacing: -0.01em; }
+  .texto { font-size: var(--fs-body); line-height: 1.5; color: var(--ink2); text-wrap: pretty; }
+  button { height: 30px; padding: 0 14px; border-radius: 999px; border: 0; background: var(--ink); color: var(--win); font: 600 var(--fs-small) var(--sans); }
 </style>

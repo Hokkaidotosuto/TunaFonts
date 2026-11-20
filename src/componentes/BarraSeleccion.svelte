@@ -55,8 +55,8 @@
     animation: tf-up 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
     white-space: nowrap;
   }
-  .cuenta { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px 0 8px; border-radius: 9px; background: var(--chip); font: 600 12.5px var(--sans); }
-  .n { min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--red); color: #fff; font: 700 11.5px var(--sans); display: flex; align-items: center; justify-content: center; }
+  .cuenta { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px 0 8px; border-radius: 9px; background: var(--chip); font: 600 var(--fs-small) var(--sans); }
+  .n { min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--red); color: #fff; font: 700 var(--fs-small) var(--sans); display: flex; align-items: center; justify-content: center; }
   .sep { width: 1px; height: 20px; background: var(--line2); margin: 0 4px; flex: none; }
   button {
     height: 32px;
@@ -65,7 +65,7 @@
     border-radius: 9px;
     background: transparent;
     color: var(--ink);
-    font: 600 12.5px var(--sans);
+    font: 600 var(--fs-small) var(--sans);
     display: flex;
     align-items: center;
     gap: 7px;
@@ -90,7 +90,7 @@
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18), 0 0 0 1px var(--line2);
     animation: tf-up 0.15s ease-out;
   }
-  .tit { padding: 6px 10px 4px; font: 600 10.5px var(--sans); letter-spacing: 0.08em; color: var(--ink3); }
+  .tit { padding: 6px 10px 4px; font: 600 var(--fs-meta) var(--sans); letter-spacing: 0.08em; color: var(--ink3); }
   .op { height: 30px; padding: 0 10px; border-radius: 7px; font-weight: 500; text-align: left; }
   .nueva { color: var(--ink2); }
 </style>

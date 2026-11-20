@@ -9,6 +9,7 @@
 
   let { f, muestra, fav, bloqueada, volver, onvolver, onalternar, onfav } = $props();
 
+
   const e = $derived(estiloDe(f));
   const otros = $derived(f.categoria === "otros");
   const meta = $derived(`${f.estilos.length} ${f.estilos.length === 1 ? t("estilo") : t("estilos")} · ${t("origen." + f.origen)}`);
@@ -124,7 +125,7 @@
     border: 0;
     background: var(--chip);
     color: var(--ink);
-    font: 600 12.5px var(--sans);
+    font: 600 var(--fs-small) var(--sans);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -138,14 +139,14 @@
   .cor.fav { color: var(--red); }
   .cab { display: flex; align-items: flex-end; gap: 16px; }
   .tit { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
-  .meta { font-size: 12px; color: var(--ink3); }
+  .meta { font-size: var(--fs-small); color: var(--ink3); }
   /* El título no se recorta: las caligráficas tienen adornos que suben y bajan
      mucho más que la línea. Interlineado amplio, sin overflow, y si no cabe a lo
      ancho pasa a la línea siguiente. */
   .nombre { font-size: 64px; line-height: 1.6; padding-top: 0.1em; overflow-wrap: anywhere; }
   .escala { display: flex; flex-direction: column; }
   .paso { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: baseline; gap: 12px; padding: 4px 0; }
-  .paso .n { font-size: 11px; color: var(--ink3); }
+  .paso .n { font-size: var(--fs-meta); color: var(--ink3); }
   /* Recorta solo a lo ancho (para los «…»): por arriba y por abajo los adornos de las caligráficas pueden salirse. */
   .linea { line-height: 1.38; white-space: nowrap; overflow-x: clip; overflow-y: visible; text-overflow: ellipsis; }
   /* La escala no se corta por la derecha: lo que no cabe pasa a la línea siguiente. */
@@ -169,7 +170,7 @@
   }
   .glifo:hover { background: var(--ink); color: var(--win); transform: scale(1.06); }
   .estilo { display: flex; flex-direction: column; gap: 1px; padding: 6px 0; }
-  .estilo .n { font-size: 10.5px; color: var(--ink3); }
+  .estilo .n { font-size: var(--fs-meta); color: var(--ink3); }
   .ruta { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding-top: 14px; border-top: 1px solid var(--line); }
   /* Cada ruta abre el Explorador con el archivo seleccionado; la carpeta aparece al pasar el ratón. */
   .archivo {
@@ -183,7 +184,7 @@
     border-radius: 6px;
     background: transparent;
     color: var(--ink2);
-    font: 400 12px var(--mono);
+    font: 400 var(--fs-small) var(--mono);
     text-align: left;
     transition: background-color 0.15s, color 0.15s;
   }
