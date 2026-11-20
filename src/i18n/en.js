@@ -37,6 +37,7 @@ export default {
   whatsNew: "WHAT'S NEW IN {v}",
   "nov.15": "uninstall from the selection bar: fonts installed for your user go to the recycle bin",
   "nov.16": "option for watched folders to start with their fonts deactivated",
+  "nov.17": "in Discover, double-click a font to see it big with all its styles",
   "nov.11": "the app now speaks simplified chinese and brazilian portuguese, translated by people who use it",
   "nov.12": "shift+click selects every font between the last one you picked and this one",
   "nov.13": "deactivated fonts are easier to read, while still looking switched off",
@@ -280,4 +281,5 @@ export default {
   "aj.carpetasHint": "how their fonts start: activated, or deactivated until you activate the ones you want",
   "aj.activadas": "activated",
   "aj.desactivadas": "deactivated",
+  "g.verGrande": "double-click to see it big",
 };

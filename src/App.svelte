@@ -13,6 +13,7 @@
   import { iniciarActualizador } from "./lib/actualizador.svelte.js";
   import TarjetaGoogle from "./componentes/TarjetaGoogle.svelte";
   import FilaGoogle from "./componentes/FilaGoogle.svelte";
+  import VistaGoogle from "./componentes/VistaGoogle.svelte";
   import Vacio from "./componentes/Vacio.svelte";
   import Esqueleto from "./componentes/Esqueleto.svelte";
   import BarraSeleccion from "./componentes/BarraSeleccion.svelte";
@@ -38,6 +39,8 @@
   let filtro = $state("todas");
   let orden = $state("popularidad");
   const sel = new SvelteSet();
+  // Familia de Google abierta en grande (doble clic en Descubrir).
+  let vistaG = $state(null);
   let detalle = $state(null);
   let comparar = $state([]);
   let ajustesEn = $state(null);
@@ -312,6 +315,10 @@
       buscador?.select();
       return;
     }
+    if (e.key === "Escape" && vistaG) {
+      vistaG = null;
+      return;
+    }
     if (e.key === "Escape") {
       if (escribiendo) return e.target.blur();
       if (colAbierta) colAbierta = false;
@@ -439,6 +446,7 @@
     fav={favs.has(g.nombre)}
     onfav={() => alternarFavorita(g.nombre)}
     oninstalar={() => instalarGoogle(g.nombre, ponerLista)}
+    onabrir={() => (vistaG = g)}
   />
 {/snippet}
 
@@ -454,6 +462,7 @@
       fav={favs.has(it.nombre)}
       onfav={() => alternarFavorita(it.nombre)}
       oninstalar={() => instalarGoogle(it.nombre, ponerLista)}
+      onabrir={() => (vistaG = it.google)}
     />
   {:else}
     {@render fila(it)}
@@ -468,6 +477,7 @@
       fav={favs.has(it.nombre)}
       onfav={() => alternarFavorita(it.nombre)}
       oninstalar={() => instalarGoogle(it.nombre, ponerLista)}
+      onabrir={() => (vistaG = it.google)}
     />
   {:else}
     {@render tarjeta(it)}
@@ -578,6 +588,16 @@
       </div>
     {/if}
 
+    {#if vistaG}
+      <VistaGoogle
+        g={vistaG}
+        {muestra}
+        instalada={instaladasNombres.has(vistaG.nombre.toLowerCase())}
+        pct={descubrir.descargas[vistaG.nombre]}
+        oninstalar={() => instalarGoogle(vistaG.nombre, ponerLista)}
+        oncerrar={() => (vistaG = null)}
+      />
+    {/if}
     {#if detalleF}
       <Especimen
         f={detalleF}

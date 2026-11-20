@@ -4,12 +4,13 @@
   import { t } from "../lib/i18n.svelte.js";
   import { encajar } from "../lib/encajar.js";
 
-  let { g, pct, fav, onfav, oninstalar } = $props();
+  let { g, pct, fav, onfav, oninstalar, onabrir } = $props();
   const familia = $derived(`"${g.nombre}", var(--sans)`);
   const aa = $derived(g.categoria === "otros" ? "あ" : "Aa");
 </script>
 
-<div class="tarjeta">
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="tarjeta" ondblclick={onabrir}>
   <div class="aa" style:font-family={familia}>
     <span use:encajar={{ texto: aa, familia, base: 64, margen: 12 }}>{aa}</span>
   </div>

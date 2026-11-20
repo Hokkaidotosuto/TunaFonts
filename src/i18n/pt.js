@@ -37,6 +37,7 @@ export default {
   whatsNew: "NOVIDADES DA {v}",
   "nov.15": "desinstale pela barra de seleção: as fontes do seu usuário vão para a lixeira",
   "nov.16": "opção para as pastas monitoradas começarem com as fontes desativadas",
+  "nov.17": "no descobrir, clique duas vezes numa fonte para vê-la grande, com todos os estilos",
   "nov.11": "o app agora fala chinês simplificado e português do brasil, traduzidos por quem usa",
   "nov.12": "shift+clique seleciona todas as fontes entre a última que você marcou e esta",
   "nov.13": "fontes desativadas ficam mais legíveis, sem deixar de parecer desligadas",
@@ -269,4 +270,5 @@ export default {
   "aj.carpetasHint": "como as fontes começam: ativadas, ou desativadas até você ativar as que quiser",
   "aj.activadas": "ativadas",
   "aj.desactivadas": "desativadas",
+  "g.verGrande": "clique duas vezes para ver em tamanho grande",
 };

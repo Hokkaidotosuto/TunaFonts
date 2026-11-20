@@ -38,6 +38,7 @@ export default {
   whatsNew: "NOVEDADES DE LA {v}",
   "nov.15": "desinstalar desde la barra de selección: las fuentes de tu usuario van a la papelera",
   "nov.16": "opción para que las carpetas vigiladas empiecen con sus fuentes desactivadas",
+  "nov.17": "en Descubrir, doble clic en una fuente la enseña en grande con todos sus estilos",
   "nov.11": "la app ya habla chino simplificado y portugués de brasil, traducidos por gente que la usa",
   "nov.12": "mayús+clic selecciona todas las fuentes entre la última que marcaste y esta",
   "nov.13": "las fuentes desactivadas se leen mejor, sin dejar de verse apagadas",
@@ -281,4 +282,5 @@ export default {
   "aj.carpetasHint": "cómo empiezan sus fuentes: activadas, o desactivadas hasta que actives las que quieras",
   "aj.activadas": "activadas",
   "aj.desactivadas": "desactivadas",
+  "g.verGrande": "doble clic para verla en grande",
 };

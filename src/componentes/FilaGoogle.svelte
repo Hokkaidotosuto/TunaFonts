@@ -4,10 +4,11 @@
   import Corazon from "./Corazon.svelte";
   import { t } from "../lib/i18n.svelte.js";
 
-  let { g, muestra, tamano, instalada, pct, fav, onfav, oninstalar, sinInstalar = false } = $props();
+  let { g, muestra, tamano, instalada, pct, fav, onfav, oninstalar, onabrir, sinInstalar = false } = $props();
 </script>
 
-<div class="fila">
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="fila" ondblclick={onabrir} title={t("g.verGrande")}>
   <div class="txt">
     <span class="nombre"
       >{g.nombre} · {g.estilos} {g.estilos === 1 ? t("estilo") : t("estilos")}{#if sinInstalar}<span class="falta">{" · " + t("g.noInstalada")}</span>{/if}</span

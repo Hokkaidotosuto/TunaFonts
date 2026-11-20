@@ -43,6 +43,9 @@ pub struct Entrada {
     estilos: usize,
     popularidad: i64,
     fecha: String,
+    /// «400», «700i»…: para la vista previa grande.
+    variantes: Vec<String>,
+    disenadores: Vec<String>,
 }
 
 fn categoria(f: &Value) -> &'static str {
@@ -71,6 +74,11 @@ fn compactar(v: &Value) -> Vec<Entrada> {
                         estilos: f["fonts"].as_object().map_or(1, |o| o.len()),
                         popularidad: f["popularity"].as_i64().unwrap_or(i64::MAX),
                         fecha: f["dateAdded"].as_str().unwrap_or("").to_string(),
+                        variantes: f["fonts"].as_object().map(|o| o.keys().cloned().collect()).unwrap_or_default(),
+                        disenadores: f["designers"]
+                            .as_array()
+                            .map(|l| l.iter().filter_map(|d| d.as_str().map(String::from)).collect())
+                            .unwrap_or_default(),
                     })
                 })
                 .collect()
