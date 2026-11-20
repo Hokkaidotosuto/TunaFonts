@@ -35,8 +35,11 @@ pub struct Estado {
     carpetas: Mutex<Vec<PathBuf>>,
     /// Fuentes de carpetas vigiladas cargadas ahora en la sesión.
     cargadas: Mutex<HashSet<String>>,
-    /// Las que se han apagado a mano en esta sesión.
+    /// Las que se han cambiado a mano en esta sesión respecto a lo normal
+    /// (encendidas, o apagadas si `carpetas_apagadas`).
     apagadas: Mutex<HashSet<String>>,
+    /// Ajuste: las fuentes de carpetas vigiladas empiezan desactivadas.
+    carpetas_apagadas: std::sync::atomic::AtomicBool,
     vigilante: Mutex<Option<notify::RecommendedWatcher>>,
 }
 
@@ -52,7 +55,7 @@ impl Estado {
         let apagadas = self.apagadas.lock().unwrap();
         let mut v = fuentes::entradas(&self.ent, &carpetas);
         for e in v.iter_mut().filter(|e| e.origen == Origen::Carpeta) {
-            e.activa = !apagadas.contains(&fuentes::clave_ruta(&e.ruta));
+            e.activa = apagadas.contains(&fuentes::clave_ruta(&e.ruta)) == self.carpetas_apagadas.load(std::sync::atomic::Ordering::Relaxed);
         }
         v
     }
@@ -136,6 +139,36 @@ async fn alternar(app: AppHandle, familias: Vec<String>, activar: bool, desbloqu
             cache.actualizar(&entradas);
             let mut apagadas = estado.apagadas.lock().unwrap();
             cambios::alternar(&estado.ent, &entradas, &cache, &familias, activar, desbloqueadas, &mut apagadas)
+        };
+        let (familias, _) = estado.refrescar();
+        Ok(Salida { familias, resultado })
+    })
+    .await
+}
+
+/// Ajuste: las fuentes de carpetas vigiladas empiezan desactivadas (o no).
+#[tauri::command]
+async fn poner_carpetas_apagadas(app: AppHandle, valor: bool) -> Result<Salida, String> {
+    fondo(move || {
+        let estado = app.state::<Estado>();
+        estado.carpetas_apagadas.store(valor, std::sync::atomic::Ordering::Relaxed);
+        estado.apagadas.lock().unwrap().clear();
+        let (familias, _) = estado.refrescar();
+        Ok(Salida { familias, resultado: Default::default() })
+    })
+    .await
+}
+
+/// Desinstala familias de este usuario: los archivos van a la papelera.
+#[tauri::command]
+async fn desinstalar(app: AppHandle, familias: Vec<String>) -> Result<Salida, String> {
+    fondo(move || {
+        let estado = app.state::<Estado>();
+        let entradas = estado.entradas();
+        let resultado = {
+            let mut cache = estado.cache.lock().unwrap();
+            cache.actualizar(&entradas);
+            cambios::desinstalar(&estado.ent, &entradas, &cache, &familias)
         };
         let (familias, _) = estado.refrescar();
         Ok(Salida { familias, resultado })
@@ -502,6 +535,8 @@ pub fn run() {
             fuentes_guardadas,
             fuentes_actualizar,
             alternar,
+            desinstalar,
+            poner_carpetas_apagadas,
             instalar,
             restaurar_sistema,
             respaldadas,
@@ -552,11 +587,13 @@ pub fn run() {
                 carpetas: Mutex::new(carpetas),
                 cargadas: Mutex::default(),
                 apagadas: Mutex::default(),
+                carpetas_apagadas: Default::default(),
                 vigilante: Mutex::default(),
             });
             vigilar(&handle);
 
             let ajustes = leer_ajustes(&handle);
+            handle.state::<Estado>().carpetas_apagadas.store(ajustes["carpetasApagadas"].as_bool().unwrap_or(false), std::sync::atomic::Ordering::Relaxed);
             let oscuro = match ajustes["tema"].as_str() {
                 Some("dark") => true,
                 Some("light") => false,

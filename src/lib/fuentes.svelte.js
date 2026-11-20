@@ -111,6 +111,21 @@ function resumen(r, accion) {
   return x;
 }
 
+/** Manda a la papelera las familias instaladas para este usuario. */
+export async function desinstalar(nombres) {
+  fuentes.ocupado = true;
+  try {
+    const r = await llamar("desinstalar", { familias: nombres });
+    poner(r.familias);
+    return resumen(r);
+  } catch (e) {
+    avisar("err", t("err.una"), String(e));
+    return null;
+  } finally {
+    fuentes.ocupado = false;
+  }
+}
+
 /** Activa o desactiva familias. Devuelve el resultado de Rust. */
 export async function alternar(nombres, activar, desbloqueadas) {
   fuentes.ocupado = true;

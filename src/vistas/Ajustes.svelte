@@ -7,7 +7,7 @@
   import { ajustes, temaActual, ponerTema, ponerIdioma, version, ATAJOS } from "../lib/ajustes.svelte.js";
   import { t } from "../lib/i18n.svelte.js";
   import { avisar } from "../lib/avisos.svelte.js";
-  import { respaldadas, restaurarSistema, fuentes } from "../lib/fuentes.svelte.js";
+  import { respaldadas, restaurarSistema, fuentes, llamar, ponerLista } from "../lib/fuentes.svelte.js";
   import { comboDe } from "../lib/atajos.js";
   import { nueva, buscarApp } from "../lib/actualizador.svelte.js";
   import { enTauri } from "../lib/ajustes.svelte.js";
@@ -77,6 +77,7 @@
     { etiqueta: t("aj.inicio"), pista: t("aj.inicioHint"), valor: inicioWin, elegir: ponerInicio, opciones: [[true, t("aj.si")], [false, t("aj.no")]] },
     { etiqueta: t("aj.sistema"), pista: t("aj.sistemaHint"), valor: ajustes.desbloqueadas, elegir: desbloquear, opciones: [[false, t("aj.bloqueadas")], [true, t("aj.desbloquear")]] },
     { etiqueta: t("aj.ver"), pista: t("aj.verHint"), valor: ajustes.verBloqueadas, elegir: (v) => (ajustes.verBloqueadas = v), opciones: [[false, t("aj.ocultas")], [true, t("aj.visibles")]] },
+    { etiqueta: t("aj.carpetas"), pista: t("aj.carpetasHint"), valor: ajustes.carpetasApagadas, elegir: (v) => { ajustes.carpetasApagadas = v; llamar("poner_carpetas_apagadas", { valor: v }).then(ponerLista).catch(() => {}); }, opciones: [[false, t("aj.activadas")], [true, t("aj.desactivadas")]] },
     { etiqueta: t("aj.buscarAct"), pista: t("aj.buscarActHint"), valor: ajustes.buscarActualizaciones, elegir: (v) => (ajustes.buscarActualizaciones = v), opciones: [[true, t("aj.si")], [false, t("aj.no")]] },
     { etiqueta: t("aj.idioma"), pista: "", valor: ajustes.idioma, elegir: ponerIdioma, opciones: [["es", "español"], ["en", "english"], ["zh", "中文"], ["pt", "português (brasil)"]] },
   ]);
@@ -119,7 +120,7 @@
     avisar("ok", t("ok.atajosRestaurados"), "");
   }
 
-  const novedades = $derived([t("nov.11"), t("nov.12"), t("nov.13"), t("nov.14")]);
+  const novedades = $derived([t("nov.11"), t("nov.15"), t("nov.16"), t("nov.12")]);
 </script>
 
 <svelte:window onkeydowncapture={tecla} />

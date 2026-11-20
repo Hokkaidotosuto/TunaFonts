@@ -1,9 +1,22 @@
 <script>
   // Barra flotante de la selección múltiple, abajo y centrada.
-  import { CircleCheck, Circle, Heart, FolderPlus, Columns2, X } from "@lucide/svelte";
+  import { CircleCheck, Circle, Heart, FolderPlus, Columns2, Trash2, X } from "@lucide/svelte";
   import { t } from "../lib/i18n.svelte.js";
 
-  let { n, colecciones, abierta = $bindable(), onactivar, ondesactivar, onfavoritas, oncoleccion, oncomparar, onlimpiar } = $props();
+  let { n, colecciones, abierta = $bindable(), onactivar, ondesactivar, onfavoritas, oncoleccion, oncomparar, ondesinstalar, onlimpiar } = $props();
+  // Primer clic avisa; el segundo (en 3 s) desinstala.
+  let seguro = $state(false);
+  let reloj;
+  function desinstalar() {
+    if (!seguro) {
+      seguro = true;
+      clearTimeout(reloj);
+      reloj = setTimeout(() => (seguro = false), 3000);
+      return;
+    }
+    seguro = false;
+    ondesinstalar();
+  }
   const comparable = $derived(n >= 2 && n <= 4);
   const titCmp = $derived(n < 2 ? t("cmp.minimo") : n > 4 ? t("cmp.maximo") : t("compare"));
 </script>
@@ -31,6 +44,7 @@
     {/if}
   </span>
   <button type="button" onclick={oncomparar} disabled={!comparable} title={titCmp} style:opacity={comparable ? 1 : 0.4}><Columns2 size={15} strokeWidth={1.9} />{t("compare")}</button>
+  <button type="button" class="borrar" class:seguro title={t("desinstalar.pista")} onclick={desinstalar}><Trash2 size={15} strokeWidth={1.9} />{seguro ? t("desinstalar.seguro") : t("desinstalar")}</button>
   <span class="sep"></span>
   <button type="button" class="limpiar" title={t("clearSel")} aria-label={t("clearSel")} onclick={onlimpiar}><X size={12} strokeWidth={2.2} /></button>
 </div>
@@ -74,6 +88,7 @@
   button:hover:not(:disabled) { background: var(--hov); }
   button:disabled { cursor: default; }
   .principal, .principal:hover:not(:disabled) { background: var(--ink); color: var(--win); padding: 0 13px 0 10px; }
+  .borrar.seguro, .borrar.seguro:hover { background: var(--red); color: #fff; }
   .limpiar { width: 32px; padding: 0; justify-content: center; color: var(--ink3); }
   .limpiar:hover { color: var(--ink); }
   .pop { position: relative; display: flex; }

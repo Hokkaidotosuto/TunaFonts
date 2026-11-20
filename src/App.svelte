@@ -23,7 +23,7 @@
   import { ajustes, enTauri, temaActual } from "./lib/ajustes.svelte.js";
   import { t, locale } from "./lib/i18n.svelte.js";
   import { avisar } from "./lib/avisos.svelte.js";
-  import { fuentes, iniciarFuentes, actualizarFuentes, alternar, instalar, estiloDe, ponerLista, llamar } from "./lib/fuentes.svelte.js";
+  import { fuentes, iniciarFuentes, actualizarFuentes, alternar, desinstalar, instalar, estiloDe, ponerLista, llamar } from "./lib/fuentes.svelte.js";
   import { biblioteca, iniciarBiblioteca, alternarFavorita, aFavoritas, nuevaColeccion, renombrar, eliminarColeccion, aColeccion } from "./lib/biblioteca.svelte.js";
   import { descubrir, cargarCatalogo, pedirVistas, precargar, instalarGoogle } from "./lib/descubrir.svelte.js";
   import { arrastre, empezarArrastre } from "./lib/arrastre.svelte.js";
@@ -643,6 +643,13 @@
         n={sel.size}
         colecciones={biblioteca.colecciones}
         bind:abierta={colAbierta}
+        ondesinstalar={async () => {
+          const r = await desinstalar([...sel]);
+          if (!r) return;
+          sel.clear();
+          if (r.cambiadas) avisar("ok", t("ok.desinstaladas", { n: r.cambiadas }), t("ok.desinstaladasTexto"));
+          if (r.bloqueadas) avisar("warn", t("aviso.noDesinstalables", { n: r.bloqueadas }), t("aviso.noDesinstalablesTexto"));
+        }}
         onactivar={() => alternarVarias([...sel], true)}
         ondesactivar={() => alternarVarias([...sel], false)}
         onfavoritas={() => {

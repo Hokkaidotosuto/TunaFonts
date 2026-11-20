@@ -111,6 +111,21 @@ pub fn abrir_url(url: &str) -> Result<(), String> {
     if r as isize > 32 { Ok(()) } else { Err(format!("no se ha podido abrir {url} ({})", r as isize)) }
 }
 
+/// Manda un archivo a la papelera (se puede recuperar desde ahí).
+pub fn a_papelera(ruta: &Path) -> Result<(), String> {
+    use windows_sys::Win32::UI::Shell::{SHFileOperationW, FOF_ALLOWUNDO, FOF_NOCONFIRMATION, FOF_NOERRORUI, FOF_SILENT, FO_DELETE, SHFILEOPSTRUCTW};
+    // La lista de rutas acaba en doble nulo.
+    let mut w = ancho(ruta);
+    w.push(0);
+    let mut op: SHFILEOPSTRUCTW = unsafe { std::mem::zeroed() };
+    op.wFunc = FO_DELETE;
+    op.pFrom = w.as_ptr();
+    op.fFlags = (FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT) as u16;
+    // SAFETY: estructura inicializada y ruta con doble nulo que vive hasta el final de la llamada.
+    let r = unsafe { SHFileOperationW(&mut op) };
+    if r == 0 && op.fAnyOperationsAborted == 0 { Ok(()) } else { Err(format!("no se ha podido mandar a la papelera ({r})")) }
+}
+
 pub fn ancho(s: impl AsRef<OsStr>) -> Vec<u16> {
     s.as_ref().encode_wide().chain(Some(0)).collect()
 }

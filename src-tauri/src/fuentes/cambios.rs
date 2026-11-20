@@ -194,10 +194,10 @@ pub fn alternar(
             }
             Origen::Carpeta => {
                 // La carga y descarga en la sesión la hace quien refresca (ver lib.rs).
+                // Solo se llega aquí si cambia: se invierte su marca, sea cual sea
+                // el modo (encendidas o apagadas por defecto).
                 let k = clave_ruta(&e.ruta);
-                if activar {
-                    apagadas_carpeta.remove(&k);
-                } else {
+                if !apagadas_carpeta.remove(&k) {
                     apagadas_carpeta.insert(k);
                 }
                 Ok(())
@@ -232,6 +232,62 @@ pub fn alternar(
         win::avisar_cambio();
     }
     r
+}
+
+/// Desinstala familias instaladas para este usuario: el archivo va a la
+/// papelera. Las del sistema, las de «para todos» y las de carpetas vigiladas
+/// no se tocan (cuentan como bloqueadas).
+pub fn desinstalar(ent: &Entorno, entradas: &[Entrada], cache: &Cache, familias: &[String]) -> Resultado {
+    let quiero: HashSet<String> = familias.iter().map(|f| f.to_lowercase()).collect();
+    let mut r = Resultado::default();
+    for e in entradas {
+        let fams = familias_de(cache, e);
+        if !fams.iter().any(|f| quiero.contains(&f.to_lowercase())) {
+            continue;
+        }
+        let nombre = fams.first().cloned().unwrap_or_else(|| nombre_archivo(&e.ruta));
+        let de_usuario = matches!(e.origen, Origen::Usuario | Origen::Biblioteca)
+            && !respaldo_de(ent, e)
+            && [ent.fuentes_usuario.clone(), ent.desactivadas()].iter().any(|d| clave_ruta(&e.ruta).starts_with(&format!("{}\\", clave_ruta(d))));
+        if !de_usuario {
+            r.bloqueadas += 1;
+            continue;
+        }
+        match desinstalar_una(ent, e) {
+            Ok(()) => r.cambiadas += 1,
+            Err(err) => r.errores.push(format!("{nombre}: {err}")),
+        }
+    }
+    if ent.tocar_windows && r.cambiadas > 0 {
+        win::avisar_cambio();
+    }
+    r
+}
+
+fn desinstalar_una(ent: &Entorno, e: &Entrada) -> Result<(), String> {
+    if e.activa && ent.tocar_windows {
+        win::descargar(&e.ruta, false);
+    }
+    let papelera = if ent.tocar_windows { win::a_papelera(&e.ruta) } else { fs::remove_file(&e.ruta).map_err(en_uso) };
+    if let Err(err) = papelera {
+        if e.activa && ent.tocar_windows {
+            win::cargar(&e.ruta, false);
+        }
+        return Err(err);
+    }
+    if e.activa {
+        if let Some((valor, _)) = &e.valor {
+            let _ = registro::quitar(registro::hkcu(), &ent.clave_usuario, valor);
+        }
+    } else {
+        let mut g = guardadas(ent);
+        let antes = g.len();
+        g.retain(|x| clave_ruta(&x.archivo) != clave_ruta(&e.ruta));
+        if g.len() != antes {
+            poner_guardadas(ent, &g)?;
+        }
+    }
+    Ok(())
 }
 
 fn respaldo_de(ent: &Entorno, e: &Entrada) -> bool {

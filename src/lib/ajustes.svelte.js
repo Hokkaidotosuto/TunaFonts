@@ -32,6 +32,7 @@ const POR_DEFECTO = {
   verBloqueadas: false,
   // Una consulta a GitHub al abrir para ver si hay versión nueva (desactivable).
   buscarActualizaciones: true,
+  carpetasApagadas: false,
   // Texto de prueba por defecto ("" = el de siempre del idioma).
   textoPrueba: "",
   atajos: { ...ATAJOS },

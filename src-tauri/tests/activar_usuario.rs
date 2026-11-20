@@ -141,3 +141,47 @@ fn arial_es_de_trustedinstaller() {
     let arial = Path::new(&windir).join("Fonts").join("arial.ttf");
     assert_eq!(tunafonts_lib::win::de_trustedinstaller(&arial), Some(true));
 }
+
+#[test]
+fn desinstalar_una_de_usuario_activa_y_otra_desactivada() {
+    let tmp = tempfile::tempdir().unwrap();
+    let base = format!(r"Software\tuna-fonts-pruebas\des-{}", std::process::id());
+    let _limpia = Limpieza(base.clone());
+    let ent = Entorno {
+        fuentes_sistema: tmp.path().join("sistema"),
+        fuentes_usuario: tmp.path().join("usuario"),
+        clave_sistema: format!(r"{base}\Sistema"),
+        clave_usuario: format!(r"{base}\Fonts"),
+        datos: tmp.path().join("datos"),
+        tocar_windows: false,
+        de_windows: |_| true,
+        de_programas: HashSet::new(),
+    };
+    let fuente = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/GochiHand-Regular.ttf");
+    let caras = leer::caras(&fuente).unwrap();
+    let familia = vec!["Gochi Hand".to_string()];
+
+    // Activa: se borra el archivo y su entrada del registro.
+    let instalada = cambios::instalar_usuario(&ent, &fuente, &caras).unwrap();
+    let mut cache = Cache::default();
+    let entradas = fuentes::entradas(&ent, &[]);
+    cache.actualizar(&entradas);
+    let r = cambios::desinstalar(&ent, &entradas, &cache, &familia);
+    assert_eq!((r.cambiadas, r.bloqueadas), (1, 0), "{:?}", r.errores);
+    assert!(!instalada.exists());
+    assert!(registro::leer(registro::hkcu(), &ent.clave_usuario).is_empty());
+
+    // Desactivada: se borra de la carpeta de la app y de la lista de guardadas.
+    cambios::instalar_usuario(&ent, &fuente, &caras).unwrap();
+    let entradas = fuentes::entradas(&ent, &[]);
+    cache.actualizar(&entradas);
+    let mut apagadas = HashSet::new();
+    cambios::alternar(&ent, &entradas, &cache, &familia, false, false, &mut apagadas);
+    assert_eq!(fuentes::guardadas(&ent).len(), 1);
+    let entradas = fuentes::entradas(&ent, &[]);
+    cache.actualizar(&entradas);
+    let r = cambios::desinstalar(&ent, &entradas, &cache, &familia);
+    assert_eq!(r.cambiadas, 1, "{:?}", r.errores);
+    assert!(fuentes::guardadas(&ent).is_empty());
+    assert!(std::fs::read_dir(ent.desactivadas()).map(|d| d.count()).unwrap_or(0) == 0);
+}
