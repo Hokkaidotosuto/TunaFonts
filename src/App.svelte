@@ -592,13 +592,15 @@
       <VistaGoogle
         g={vistaG}
         {muestra}
+        volver={enDescubrir ? t("sec.descubrir") : t("favorites")}
         instalada={instaladasNombres.has(vistaG.nombre.toLowerCase())}
         pct={descubrir.descargas[vistaG.nombre]}
+        fav={favs.has(vistaG.nombre)}
+        onfav={() => alternarFavorita(vistaG.nombre)}
         oninstalar={() => instalarGoogle(vistaG.nombre, ponerLista)}
-        oncerrar={() => (vistaG = null)}
+        onvolver={() => (vistaG = null)}
       />
-    {/if}
-    {#if detalleF}
+    {:else if detalleF}
       <Especimen
         f={detalleF}
         {muestra}
