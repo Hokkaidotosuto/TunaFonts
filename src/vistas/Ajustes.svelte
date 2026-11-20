@@ -79,7 +79,7 @@
     { etiqueta: t("aj.ver"), pista: t("aj.verHint"), valor: ajustes.verBloqueadas, elegir: (v) => (ajustes.verBloqueadas = v), opciones: [[false, t("aj.ocultas")], [true, t("aj.visibles")]] },
     { etiqueta: t("aj.carpetas"), pista: t("aj.carpetasHint"), valor: ajustes.carpetasApagadas, elegir: (v) => { ajustes.carpetasApagadas = v; llamar("poner_carpetas_apagadas", { valor: v }).then(ponerLista).catch(() => {}); }, opciones: [[false, t("aj.activadas")], [true, t("aj.desactivadas")]] },
     { etiqueta: t("aj.buscarAct"), pista: t("aj.buscarActHint"), valor: ajustes.buscarActualizaciones, elegir: (v) => (ajustes.buscarActualizaciones = v), opciones: [[true, t("aj.si")], [false, t("aj.no")]] },
-    { etiqueta: t("aj.idioma"), pista: "", valor: ajustes.idioma, elegir: ponerIdioma, opciones: [["es", "español"], ["en", "english"], ["zh", "中文"], ["pt", "português (brasil)"]] },
+    { etiqueta: t("aj.idioma"), pista: "", valor: ajustes.idioma, elegir: ponerIdioma, opciones: [["es", "español"], ["en", "english"], ["zh", "中文"], ["pt", "português"]] },
   ]);
 
   // ---- atajos ----
@@ -147,7 +147,7 @@
         </button>
       </div>
 
-      <div class="scroll">
+      <div class="scroll" class:sinbarra={pestana === "acerca"}>
       {#if pestana === "ajustes"}
         {#each filas as f (f.etiqueta)}
           <div class="fila">
@@ -294,6 +294,8 @@
   .cab { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 14px 10px 26px; }
   /* La barra de desplazamiento va separada del borde redondeado y siempre en
      su sitio (gutter estable), para que se vea y no mueva el contenido. */
+  /* En «acerca de» cabe casi entero: se puede seguir bajando con la rueda, sin barra. */
+  .scroll.sinbarra { scrollbar-width: none; }
   .scroll {
     flex: 1;
     min-height: 0;
