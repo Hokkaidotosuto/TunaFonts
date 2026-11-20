@@ -261,9 +261,18 @@
     avisar("ok", t("ok.carpetaQuitada"), t("ok.carpetaQuitadaTexto"));
   }
 
-  function seleccionar(f) {
-    if (sel.has(f.nombre)) sel.delete(f.nombre);
+  // Mayús+clic marca todo el tramo entre la última fila tocada y esta.
+  let ultimaSel = null;
+  function seleccionar(f, e) {
+    const nombres = listaVista.filter((x) => !x.google).map((x) => x.nombre);
+    const a = e?.shiftKey && ultimaSel ? nombres.indexOf(ultimaSel) : -1;
+    const b = nombres.indexOf(f.nombre);
+    if (a >= 0 && b >= 0) {
+      for (const n of nombres.slice(Math.min(a, b), Math.max(a, b) + 1)) sel.add(n);
+      getSelection()?.removeAllRanges();
+    } else if (sel.has(f.nombre)) sel.delete(f.nombre);
     else sel.add(f.nombre);
+    ultimaSel = f.nombre;
     colAbierta = false;
   }
 
@@ -396,7 +405,7 @@
     fav={favs.has(f.nombre)}
     bloqueada={bloqueada(f)}
     motivo={motivo(f)}
-    onsel={() => seleccionar(f)}
+    onsel={(e) => seleccionar(f, e)}
     onabrir={() => ((detalle = f.nombre), sel.clear())}
     onalternar={() => alternarUna(f)}
     onfav={() => alternarFavorita(f.nombre)}
@@ -412,7 +421,7 @@
     fav={favs.has(f.nombre)}
     bloqueada={bloqueada(f)}
     motivo={motivo(f)}
-    onsel={() => seleccionar(f)}
+    onsel={(e) => seleccionar(f, e)}
     onabrir={() => ((detalle = f.nombre), sel.clear())}
     onalternar={() => alternarUna(f)}
     onfav={() => alternarFavorita(f.nombre)}

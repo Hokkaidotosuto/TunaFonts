@@ -27,7 +27,7 @@ Your fonts, tidy and at hand. No accounts, no ads, nothing sent anywhere.
 - **Watched folders**: point it at a folder and its fonts are available while the app is open, without installing them. Closing the window keeps it in the tray, so they stay available, and it can start with Windows (off by default).
 - **Categories** worked out from the font itself: sans serif, serif, script, display, monospace and other scripts.
 - **Ctrl + mouse wheel** changes the preview size anywhere in the list.
-- Light and dark theme, Spanish and English (it starts in your Windows language), editable keyboard shortcuts.
+- Light and dark theme, Spanish, English, Simplified Chinese and Brazilian Portuguese (it starts in your Windows language), editable keyboard shortcuts.
 - **Updates itself**: when there's a new version it tells you, and one click installs it. Only packages signed with the project's key are accepted.
 
 ### Type and see it everywhere
@@ -134,6 +134,13 @@ The workflow checks the tag matches the version, runs the tests, builds the inst
 
 App data (cache, deactivated fonts, system font backups) is kept in `%APPDATA%\es.atunfrito.tunafonts`.
 
+## Translations
+
+- **Simplified Chinese**: [@Hokkaidotosuto](https://github.com/Hokkaidotosuto)
+- **Brazilian Portuguese**: [@renatosouzadesign](https://github.com/renatosouzadesign)
+
+Want tuna-fonts in your language? [Open an issue](https://github.com/atunfrito/tuna-fonts/issues/new/choose) and you'll get a simple sheet with all the texts, no coding needed.
+
 ## License
 
 [MIT](LICENSE). The fonts bundled for the interface (Archivo, JetBrains Mono and Gochi Hand) are under the SIL Open Font License; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
@@ -153,7 +160,7 @@ App data (cache, deactivated fonts, system font backups) is kept in `%APPDATA%\e
 - **Carpetas vigiladas**: sus fuentes están disponibles mientras la app está abierta, sin instalarlas. Al cerrar la ventana se queda en la bandeja, así que siguen disponibles, y puede arrancar con Windows (apagado por defecto).
 - Favoritas también como lista de deseos: el corazón en Descubrir la guarda en favoritas sin instalarla.
 - Control + rueda del ratón cambia el tamaño de las muestras.
-- Tema claro y oscuro, español e inglés (arranca en el idioma de Windows), y atajos de teclado editables.
+- Tema claro y oscuro, español, inglés, chino simplificado y portugués de Brasil (arranca en el idioma de Windows), y atajos de teclado editables.
 - Se actualiza sola: avisa de la versión nueva y se instala con un clic. Solo acepta paquetes firmados con la clave del proyecto.
 
 Las fuentes del sistema vienen **bloqueadas y ocultas** por defecto. Se pueden desbloquear en ajustes: pide permisos cada vez, guarda una copia antes de quitar nada y hay un botón para restaurarlas todas. Las imprescindibles para Windows no se tocan nunca. Las instaladas «para todos los usuarios», por ti o por programas como Office, no cuentan como del sistema: salen en la lista sin candado (cambiarlas pide permisos igualmente).

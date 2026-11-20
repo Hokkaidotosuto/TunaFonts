@@ -14,7 +14,7 @@
 <div class="fila" class:sel onclick={onsel} ondblclick={onabrir} onpointerdown={onarrastre} data-familia={f.nombre}>
   <Interruptor activa={f.activa} {bloqueada} titulo={bloqueada ? motivo : f.activa ? t("deactivate") : t("activate")} onclick={onalternar} />
   <div class="txt">
-    <span class="nombre">{f.nombre}{#if f.error}<span class="roto"> · {t("err.ilegible")}</span>{/if}</span>
+    <span class="nombre">{f.nombre}{#if f.estilos.length > 1}<span class="n"> · {f.estilos.length} {t("estilos")}</span>{/if}{#if f.error}<span class="roto"> · {t("err.ilegible")}</span>{/if}</span>
     <span
       class="muestra"
       class:off={!on}
@@ -61,6 +61,7 @@
   .fila.sel, .fila.sel:hover { background: var(--sel); }
   .txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .nombre { font-size: var(--fs-meta); color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .n { opacity: 0.75; }
   .roto { color: var(--red); }
   /* Recorta solo a lo ancho (para los «…»): por arriba y por abajo los adornos de las caligráficas pueden salirse. */
   .muestra {
