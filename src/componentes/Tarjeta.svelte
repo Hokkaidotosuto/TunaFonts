@@ -64,7 +64,7 @@
   .aa span { display: block; line-height: 1; }
   .aa.off { color: var(--off); }
   .pie { display: flex; align-items: center; gap: 8px; }
-  .nombre { flex: 1; min-width: 0; font-size: var(--fs-small); font-weight: 500; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nombre { flex: 1; min-width: 0; font-size: var(--fs-body); font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .corazon {
     width: 22px;
     height: 22px;

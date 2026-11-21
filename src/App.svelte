@@ -24,7 +24,7 @@
   import { ajustes, enTauri, temaActual } from "./lib/ajustes.svelte.js";
   import { t, locale } from "./lib/i18n.svelte.js";
   import { avisar } from "./lib/avisos.svelte.js";
-  import { fuentes, iniciarFuentes, actualizarFuentes, alternar, desinstalar, instalar, estiloDe, ponerLista, llamar } from "./lib/fuentes.svelte.js";
+  import { fuentes, iniciarFuentes, actualizarFuentes, alternar, desinstalar, ponerCategoria, instalar, estiloDe, ponerLista, llamar } from "./lib/fuentes.svelte.js";
   import { biblioteca, iniciarBiblioteca, alternarFavorita, aFavoritas, nuevaColeccion, renombrar, eliminarColeccion, aColeccion } from "./lib/biblioteca.svelte.js";
   import { descubrir, cargarCatalogo, pedirVistas, precargar, instalarGoogle } from "./lib/descubrir.svelte.js";
   import { arrastre, empezarArrastre } from "./lib/arrastre.svelte.js";
@@ -621,7 +621,7 @@
       />
     {:else if enDescubrir}
       {#if descubrir.lista.length && listaGoogle.length}
-        <ListaVirtual items={listaGoogle} alto={Math.ceil(34 + tamano * 1.58)} clave={(g) => g.nombre} fila={filaGoogle} alVer={alVerGoogle} padBottom={60} />
+        <ListaVirtual items={listaGoogle} alto={Math.ceil(37 + tamano * 1.58)} clave={(g) => g.nombre} fila={filaGoogle} alVer={alVerGoogle} padBottom={60} />
       {:else if descubrir.lista.length}
         <Vacio titulo={t("vacio.nada", { q: q.trim() })} texto={t("vacio.nadaGoogle")} boton={t("vacio.borrar")} onboton={() => (q = "")} />
       {:else if descubrir.error}
@@ -656,7 +656,7 @@
       {/key}
     {:else}
       {#key seccion + cat}
-        <ListaVirtual items={listaVista} alto={Math.ceil(32 + tamano * 1.58)} clave={(f) => (f.google ? "g:" : "") + f.nombre} fila={filaFav} alVer={alVerFav} padBottom={80} />
+        <ListaVirtual items={listaVista} alto={Math.ceil(35 + tamano * 1.58)} clave={(f) => (f.google ? "g:" : "") + f.nombre} fila={filaFav} alVer={alVerFav} padBottom={80} />
       {/key}
     {/if}
 
@@ -665,6 +665,12 @@
         n={sel.size}
         colecciones={biblioteca.colecciones}
         bind:abierta={colAbierta}
+        oncategoria={(c) => {
+          const n = [...sel];
+          ponerCategoria(n, c);
+          sel.clear();
+          avisar("ok", c ? t("ok.categoria", { n: n.length, c: t("cat." + c) }) : t("ok.categoriaAuto", { n: n.length }), "");
+        }}
         ondesinstalar={async () => {
           const r = await desinstalar([...sel]);
           if (!r) return;

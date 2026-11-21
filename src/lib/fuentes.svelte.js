@@ -1,6 +1,6 @@
 // Las fuentes instaladas: se pintan al momento desde la caché de Rust y luego
 // se comprueba en segundo plano si ha cambiado algo.
-import { enTauri } from "./ajustes.svelte.js";
+import { enTauri, ajustes } from "./ajustes.svelte.js";
 import { avisar } from "./avisos.svelte.js";
 import { t } from "./i18n.svelte.js";
 
@@ -60,8 +60,28 @@ export function estiloDe(f, estilo = null) {
   return { familia: `${css(cara(e, local))}, ${css(e.familia_win)}, var(--sans)`, peso: e.peso, cursiva: e.cursiva };
 }
 
+// La lista tal como llega de Rust; encima se aplican las categorías puestas a mano.
+let cruda = [];
+const conCategorias = (lista) =>
+  lista.map((f) => {
+    const c = ajustes.categorias?.[f.nombre];
+    return c && c !== f.categoria ? { ...f, categoria: c, categoriaAuto: f.categoria } : f;
+  });
+
+/** Pone la categoría a mano (o la automática, con `cat` = null) a estas familias. */
+export function ponerCategoria(nombres, cat) {
+  const m = { ...(ajustes.categorias ?? {}) };
+  for (const n of nombres) {
+    if (cat) m[n] = cat;
+    else delete m[n];
+  }
+  ajustes.categorias = m;
+  fuentes.lista = conCategorias(cruda);
+}
+
 function poner(lista) {
-  fuentes.lista = lista;
+  cruda = lista;
+  fuentes.lista = conCategorias(lista);
   fuentes.cargando = false;
   fuentes.esqueleto = false;
 }

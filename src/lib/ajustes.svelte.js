@@ -33,6 +33,8 @@ const POR_DEFECTO = {
   // Una consulta a GitHub al abrir para ver si hay versión nueva (desactivable).
   buscarActualizaciones: true,
   carpetasApagadas: false,
+  // familia -> categoría elegida a mano (gana a la automática).
+  categorias: {},
   // Texto de prueba por defecto ("" = el de siempre del idioma).
   textoPrueba: "",
   atajos: { ...ATAJOS },

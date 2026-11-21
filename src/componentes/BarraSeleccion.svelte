@@ -1,9 +1,11 @@
 <script>
   // Barra flotante de la selección múltiple, abajo y centrada.
-  import { CircleCheck, Circle, Heart, FolderPlus, Columns2, Trash2, X } from "@lucide/svelte";
+  import { CircleCheck, Circle, Heart, FolderPlus, Columns2, Trash2, Tag, X } from "@lucide/svelte";
   import { t } from "../lib/i18n.svelte.js";
 
-  let { n, colecciones, abierta = $bindable(), onactivar, ondesactivar, onfavoritas, oncoleccion, oncomparar, ondesinstalar, onlimpiar } = $props();
+  let { n, colecciones, abierta = $bindable(), onactivar, ondesactivar, onfavoritas, oncoleccion, oncomparar, ondesinstalar, oncategoria, onlimpiar } = $props();
+  const CATEGORIAS = ["sans", "serif", "script", "display", "mono", "otros"];
+  let catAbierta = $state(false);
   // Primer clic avisa; el segundo (en 3 s) desinstala.
   let seguro = $state(false);
   let reloj;
@@ -40,6 +42,18 @@
           <button type="button" class="op" onclick={() => oncoleccion(c.id)}>{c.nombre}</button>
         {/each}
         <button type="button" class="op nueva" onclick={() => oncoleccion(null)}>+ {t("col.nueva")}</button>
+      </span>
+    {/if}
+  </span>
+  <span class="pop">
+    <button type="button" onclick={() => ((catAbierta = !catAbierta), (abierta = false))} aria-expanded={catAbierta}><Tag size={15} strokeWidth={1.9} />{t("categoria")}</button>
+    {#if catAbierta}
+      <span class="menu">
+        <span class="tit">{t("categoria.cambiar")}</span>
+        {#each CATEGORIAS as c (c)}
+          <button type="button" class="op" onclick={() => ((catAbierta = false), oncategoria(c))}>{t("cat." + c)}</button>
+        {/each}
+        <button type="button" class="op nueva" onclick={() => ((catAbierta = false), oncategoria(null))}>{t("categoria.auto")}</button>
       </span>
     {/if}
   </span>

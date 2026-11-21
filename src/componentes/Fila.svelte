@@ -60,7 +60,7 @@
   .fila:hover { background: var(--hov); }
   .fila.sel, .fila.sel:hover { background: var(--sel); }
   .txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .nombre { font-size: var(--fs-meta); color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nombre { font-size: var(--fs-body); color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .n { opacity: 0.75; }
   .roto { color: var(--red); }
   /* Recorta solo a lo ancho (para los «…»): por arriba y por abajo los adornos de las caligráficas pueden salirse. */

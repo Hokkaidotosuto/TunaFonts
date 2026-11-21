@@ -120,7 +120,7 @@
     avisar("ok", t("ok.atajosRestaurados"), "");
   }
 
-  const novedades = $derived([t("nov.11"), t("nov.15"), t("nov.17"), t("nov.16")]);
+  const novedades = $derived([t("nov.18"), t("nov.19"), t("nov.20"), t("nov.17")]);
 </script>
 
 <svelte:window onkeydowncapture={tecla} />
