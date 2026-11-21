@@ -40,7 +40,6 @@ export default {
   "nov.17": "in Discover, double-click a font to see it big with all its styles",
   "nov.18": "font names are easier to read: bigger and with more contrast",
   "nov.19": "change a font's category by hand from the selection bar (or go back to automatic)",
-  "nov.20": "new icon: a tuna",
   "nov.11": "the app now speaks simplified chinese and brazilian portuguese, translated by people who use it",
   "nov.12": "shift+click selects every font between the last one you picked and this one",
   "nov.13": "deactivated fonts are easier to read, while still looking switched off",

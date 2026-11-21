@@ -41,7 +41,6 @@ export default {
   "nov.17": "en Descubrir, doble clic en una fuente la enseña en grande con todos sus estilos",
   "nov.18": "los nombres de las fuentes se leen mejor: más grandes y con más contraste",
   "nov.19": "cambia la categoría de una fuente a mano desde la barra de selección (o vuelve a la automática)",
-  "nov.20": "icono nuevo: un atún",
   "nov.11": "la app ya habla chino simplificado y portugués de brasil, traducidos por gente que la usa",
   "nov.12": "mayús+clic selecciona todas las fuentes entre la última que marcaste y esta",
   "nov.13": "las fuentes desactivadas se leen mejor, sin dejar de verse apagadas",

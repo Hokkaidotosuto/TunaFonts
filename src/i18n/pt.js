@@ -40,7 +40,6 @@ export default {
   "nov.17": "no descobrir, clique duas vezes numa fonte para vê-la grande, com todos os estilos",
   "nov.18": "os nomes das fontes ficaram mais legíveis: maiores e com mais contraste",
   "nov.19": "mude a categoria de uma fonte à mão pela barra de seleção (ou volte para a automática)",
-  "nov.20": "ícone novo: um atum",
   "nov.11": "o app agora fala chinês simplificado e português do brasil, traduzidos por quem usa",
   "nov.12": "shift+clique seleciona todas as fontes entre a última que você marcou e esta",
   "nov.13": "fontes desativadas ficam mais legíveis, sem deixar de parecer desligadas",

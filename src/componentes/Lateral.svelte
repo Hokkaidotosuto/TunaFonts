@@ -78,7 +78,7 @@
 
 <aside>
   <div class="cabeza" data-tauri-drag-region>
-    <img src="/icon-48.png" width="24" height="24" alt="" draggable="false" />
+    <img src="/icon.svg" width="24" height="24" alt="" draggable="false" />
     <span class="marca" data-tauri-drag-region>tuna-fonts<i>.</i></span>
   </div>
 
