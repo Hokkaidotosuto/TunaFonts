@@ -21,10 +21,10 @@ Your fonts, tidy and at hand. No accounts, no ads, nothing sent anywhere.
 - **See every font you have**, grouped by family, as a list or a grid. Each one is previewed with your own text, at the size you pick.
 - **Activate and deactivate without deleting.** A deactivated font disappears from your apps but stays safe in tuna-fonts, ready to come back with one click. Shift+click selects a whole range.
 - **Uninstall** fonts installed for your user: they go to the recycle bin, so you can get them back.
-- **Install by dropping** `.ttf`, `.otf` or `.ttc` files on the window — just for you (no admin rights) or for every user.
+- **Install by dropping** `.ttf`, `.otf` or `.ttc` files (or a `.zip` full of them) on the window — just for you (no admin rights) or for every user.
 - **Discover** the whole Google Fonts catalog (about 1,900 families) and install any of them in one click. Double-click one to see it big, with every style, before installing.
 - **Favorites and collections** to keep the fonts for each project together, and a selection bar to act on many at once. Export and import them to move your library to another PC. Favorites work as a wishlist too: heart a Google font in Discover and it waits in your favorites, not installed, until you want it.
-- **Specimen** with the real character map of the font (click a glyph to copy it), its OpenType features with live examples, and what the file says about itself: designer, foundry, version, license. **Compare** 2 to 4 fonts side by side.
+- **Specimen** with the real character map of the font (click a glyph to copy it), its OpenType features with live examples, the scripts it covers, duplicate styles, and what the file says about itself: designer, foundry, version, license. **Compare** 2 to 4 fonts side by side.
 - **Filter by OpenType features**: small caps, oldstyle and tabular figures, ligatures, swashes, stylistic sets, fractions.
 - **Watched folders**: point it at a folder and its fonts are available while the app is open, without installing them. They can start deactivated, so a big library doesn't flood your font menus. Closing the window keeps it in the tray, so they stay available, and it can start with Windows (off by default).
 - **Categories** worked out from the font itself: sans serif, serif, script, display, monospace and other scripts. Wrong one? Change it by hand.
@@ -156,10 +156,10 @@ Want tuna-fonts in your language? [Open an issue](https://github.com/atunfrito/t
 - **Todas tus fuentes**, agrupadas por familia, en lista o cuadrícula, con tu propio texto de prueba y al tamaño que quieras.
 - **Activar y desactivar sin borrar.** Una fuente desactivada deja de salir en tus programas, pero se queda guardada en tuna-fonts y vuelve con un clic. Mayús+clic selecciona un tramo entero.
 - **Desinstalar** las fuentes instaladas para tu usuario: van a la papelera, así que se pueden recuperar.
-- **Instalar arrastrando** `.ttf`, `.otf` o `.ttc` a la ventana: solo para ti (sin permisos) o para todos los usuarios.
+- **Instalar arrastrando** `.ttf`, `.otf` o `.ttc` (o un `.zip` con ellas) a la ventana: solo para ti (sin permisos) o para todos los usuarios.
 - **Descubrir**: el catálogo entero de Google Fonts, con instalación en un clic. Doble clic en una para verla en grande, con todos sus estilos, antes de instalarla.
 - **Favoritas y colecciones** para tener juntas las fuentes de cada proyecto, y una barra de selección para hacer cosas con varias a la vez. Se exportan e importan para llevar tu biblioteca a otro PC.
-- **Espécimen** con el mapa de caracteres real (clic en un carácter para copiarlo), sus funciones OpenType con ejemplos y lo que dice el archivo de sí mismo: diseñador, fabricante, versión, licencia. **Comparar** de 2 a 4 fuentes.
+- **Espécimen** con el mapa de caracteres real (clic en un carácter para copiarlo), sus funciones OpenType con ejemplos, los alfabetos que cubre, los estilos duplicados y lo que dice el archivo de sí mismo: diseñador, fabricante, versión, licencia. **Comparar** de 2 a 4 fuentes.
 - **Filtrar por funciones OpenType**: versalitas, números antiguos y tabulares, ligaduras, florituras, conjuntos estilísticos, fracciones.
 - **Carpetas vigiladas**: sus fuentes están disponibles mientras la app está abierta, sin instalarlas. Pueden empezar desactivadas, para que una biblioteca grande no llene los menús de fuentes. Al cerrar la ventana se queda en la bandeja, así que siguen disponibles, y puede arrancar con Windows (apagado por defecto).
 - Favoritas también como lista de deseos: el corazón en Descubrir la guarda en favoritas sin instalarla.

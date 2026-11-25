@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { SvelteSet } from "svelte/reactivity";
-  import { Search, List, LayoutGrid, Folder, FolderOpen, Trash2, X, Heart, WifiOff, Layers, Type, LoaderCircle } from "@lucide/svelte";
+  import { Search, List, LayoutGrid, Folder, FolderOpen, Trash2, X, Heart, WifiOff, Layers, Type, LoaderCircle, CircleCheck, Circle, Tag, ChevronRight, Download } from "@lucide/svelte";
 
   import Lateral from "./componentes/Lateral.svelte";
   import Controles from "./componentes/Controles.svelte";
@@ -13,6 +13,7 @@
   import { iniciarActualizador } from "./lib/actualizador.svelte.js";
   import TarjetaGoogle from "./componentes/TarjetaGoogle.svelte";
   import FilaGoogle from "./componentes/FilaGoogle.svelte";
+  import MenuContextual from "./componentes/MenuContextual.svelte";
   import VistaGoogle from "./componentes/VistaGoogle.svelte";
   import Vacio from "./componentes/Vacio.svelte";
   import Esqueleto from "./componentes/Esqueleto.svelte";
@@ -24,8 +25,8 @@
   import { ajustes, enTauri, temaActual } from "./lib/ajustes.svelte.js";
   import { t, locale } from "./lib/i18n.svelte.js";
   import { avisar } from "./lib/avisos.svelte.js";
-  import { fuentes, iniciarFuentes, actualizarFuentes, alternar, desinstalar, ponerCategoria, instalar, estiloDe, ponerLista, llamar } from "./lib/fuentes.svelte.js";
-  import { biblioteca, iniciarBiblioteca, alternarFavorita, aFavoritas, nuevaColeccion, renombrar, eliminarColeccion, aColeccion } from "./lib/biblioteca.svelte.js";
+  import { fuentes, iniciarFuentes, actualizarFuentes, alternar, desinstalar, ponerCategoria, mostrarEnExplorador, instalar, estiloDe, ponerLista, llamar } from "./lib/fuentes.svelte.js";
+  import { biblioteca, iniciarBiblioteca, alternarFavorita, aFavoritas, nuevaColeccion, renombrar, eliminarColeccion, aColeccion, copiaColeccion } from "./lib/biblioteca.svelte.js";
   import { descubrir, cargarCatalogo, pedirVistas, precargar, instalarGoogle } from "./lib/descubrir.svelte.js";
   import { arrastre, empezarArrastre } from "./lib/arrastre.svelte.js";
   import { comboDe } from "./lib/atajos.js";
@@ -43,6 +44,42 @@
   let filtro = $state("todas");
   let orden = $state("popularidad");
   const sel = new SvelteSet();
+  // Menú del clic derecho: { x, y, f }.
+  let menu = $state(null);
+  function abrirMenu(e, f) {
+    e.preventDefault();
+    menu = { x: e.clientX, y: e.clientY, f };
+  }
+  function hacerCategoria(n, c) {
+    ponerCategoria(n, c);
+    avisar("ok", c ? t("ok.categoria", { n: n.length === 1 ? n[0] : n.length, c: t("cat." + c) }) : t("ok.categoriaAuto", { n: n.length === 1 ? n[0] : n.length }), "");
+  }
+  async function hacerDesinstalar(n) {
+    const r = await desinstalar(n);
+    if (!r) return;
+    if (r.cambiadas) avisar("ok", t("ok.desinstaladas", { n: r.cambiadas }), t("ok.desinstaladasTexto"));
+    if (r.bloqueadas) avisar("warn", t("aviso.noDesinstalables", { n: r.bloqueadas }), t("aviso.noDesinstalablesTexto"));
+  }
+  const CATS = ["sans", "serif", "script", "display", "mono", "otros"];
+  const opcionesMenu = $derived.by(() => {
+    if (!menu) return [];
+    const f = menu.f;
+    // Si la fuente está en una selección de varias, el menú actúa sobre toda la selección.
+    const n = sel.has(f.nombre) && sel.size > 1 ? [...sel] : [f.nombre];
+    const varias = n.length > 1;
+    const todasFav = n.every((x) => favs.has(x));
+    const fin = () => varias && sel.clear();
+    return [
+      !varias && { texto: t("specimen"), icono: ChevronRight, accion: () => ((detalle = f.nombre), sel.clear()) },
+      { texto: t("activate"), icono: CircleCheck, accion: () => (alternarVarias(n, true), fin()) },
+      { texto: t("deactivate"), icono: Circle, accion: () => (alternarVarias(n, false), fin()) },
+      { texto: todasFav ? t("fav.quitar") : t("fav.poner"), icono: Heart, separador: true, accion: () => (todasFav ? n.forEach((x) => alternarFavorita(x)) : aFavoritas(n), fin()) },
+      { texto: t("categoria"), icono: Tag, sub: [...CATS.map((c) => ({ texto: t("cat." + c), accion: () => (hacerCategoria(n, c), fin()) })), { texto: t("categoria.auto"), accion: () => (hacerCategoria(n, null), fin()) }] },
+      !varias && !f.error && { texto: t("ruta.mostrar"), icono: FolderOpen, separador: true, accion: () => mostrarEnExplorador(f.archivo) },
+      { texto: t("desinstalar"), icono: Trash2, peligro: true, confirmar: true, separador: varias, accion: () => (hacerDesinstalar(n), fin()) },
+    ].filter(Boolean);
+  });
+
   // Familia de Google abierta en grande (doble clic en Descubrir).
   let vistaG = $state(null);
   let detalle = $state(null);
@@ -244,6 +281,16 @@
     avisar("ok", t("ok.colEliminada"), t("ok.siguenInstaladas"));
   }
 
+  async function exportarColeccion() {
+    if (!coleccion) return;
+    try {
+      if (await llamar("exportar_biblioteca", { contenido: copiaColeccion(coleccion.id), nombre: coleccion.nombre }))
+        avisar("ok", t("ok.colExportada", { c: coleccion.nombre }), t("ok.colExportadaTexto"));
+    } catch (e) {
+      avisar("err", t("err.una"), String(e));
+    }
+  }
+
   async function activarColeccion(activar) {
     if (!coleccion) return;
     const n = coleccion.fuentes;
@@ -397,7 +444,7 @@
         else if (p.type === "leave") soltando = false;
         else if (p.type === "drop") {
           soltando = false;
-          const rutas = (p.paths ?? []).filter((r) => /\.(ttf|otf|ttc|otc)$/i.test(r));
+          const rutas = (p.paths ?? []).filter((r) => /\.(ttf|otf|ttc|otc|zip)$/i.test(r));
           if (!rutas.length) return avisar("err", t("err.noFuente"), t("err.noFuenteTexto"));
           const todos = ajustes.instalarPara === "todos";
           const r = await instalar(rutas, todos);
@@ -431,6 +478,7 @@
     onalternar={() => alternarUna(f)}
     onfav={() => alternarFavorita(f.nombre)}
     onarrastre={(e) => arrastrar(e, f)}
+    oncontexto={(e) => abrirMenu(e, f)}
   />
 {/snippet}
 
@@ -447,6 +495,7 @@
     onalternar={() => alternarUna(f)}
     onfav={() => alternarFavorita(f.nombre)}
     onarrastre={(e) => arrastrar(e, f)}
+    oncontexto={(e) => abrirMenu(e, f)}
   />
 {/snippet}
 
@@ -591,6 +640,7 @@
           <span class="sep"></span>
           <button type="button" class="pild tinta" onclick={() => activarColeccion(true)}>{t("activateAll")}</button>
           <button type="button" class="pild" onclick={() => activarColeccion(false)}>{t("deactivate")}</button>
+          <button type="button" class="pild" title={t("col.exportarPista")} onclick={exportarColeccion}><Download size={12} strokeWidth={2} />{t("bib.exportar")}</button>
           <button type="button" class="pild borrar" class:seguro={borrando === coleccion.id} title={t("col.eliminarPista")} onclick={borrarColeccion}>
             <Trash2 size={12} strokeWidth={2} />{borrando === coleccion.id ? t("col.seguro") : t("col.eliminar")}
           </button>
@@ -685,17 +735,12 @@
         colecciones={biblioteca.colecciones}
         bind:abierta={colAbierta}
         oncategoria={(c) => {
-          const n = [...sel];
-          ponerCategoria(n, c);
+          hacerCategoria([...sel], c);
           sel.clear();
-          avisar("ok", c ? t("ok.categoria", { n: n.length, c: t("cat." + c) }) : t("ok.categoriaAuto", { n: n.length }), "");
         }}
-        ondesinstalar={async () => {
-          const r = await desinstalar([...sel]);
-          if (!r) return;
+        ondesinstalar={() => {
+          hacerDesinstalar([...sel]);
           sel.clear();
-          if (r.cambiadas) avisar("ok", t("ok.desinstaladas", { n: r.cambiadas }), t("ok.desinstaladasTexto"));
-          if (r.bloqueadas) avisar("warn", t("aviso.noDesinstalables", { n: r.bloqueadas }), t("aviso.noDesinstalablesTexto"));
         }}
         onactivar={() => alternarVarias([...sel], true)}
         ondesactivar={() => alternarVarias([...sel], false)}
@@ -717,6 +762,10 @@
         }}
         onlimpiar={() => sel.clear()}
       />
+    {/if}
+
+    {#if menu}
+      <MenuContextual x={menu.x} y={menu.y} titulo={sel.has(menu.f.nombre) && sel.size > 1 ? t("seleccionadasN", { n: sel.size }) : menu.f.nombre} opciones={opcionesMenu} oncerrar={() => (menu = null)} />
     {/if}
 
     {#if soltando}

@@ -5,16 +5,16 @@
   import Corazon from "./Corazon.svelte";
   import { t } from "../lib/i18n.svelte.js";
 
-  let { f, estilo, muestra, tamano, sel, fav, bloqueada, motivo, onsel, onabrir, onalternar, onfav, onarrastre } = $props();
+  let { f, estilo, muestra, tamano, sel, fav, bloqueada, motivo, onsel, onabrir, onalternar, onfav, onarrastre, oncontexto } = $props();
 
   const on = $derived(f.activa || bloqueada);
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-<div class="fila" class:sel onclick={onsel} ondblclick={onabrir} onpointerdown={onarrastre} data-familia={f.nombre}>
+<div class="fila" class:sel onclick={onsel} ondblclick={onabrir} onpointerdown={onarrastre} oncontextmenu={oncontexto} data-familia={f.nombre}>
   <Interruptor activa={f.activa} {bloqueada} titulo={bloqueada ? motivo : f.activa ? t("deactivate") : t("activate")} onclick={onalternar} />
   <div class="txt">
-    <span class="nombre">{f.nombre}{#if f.estilos.length > 1}<span class="n"> · {f.estilos.length} {t("estilos")}</span>{/if}{#if f.error}<span class="roto"> · {t("err.ilegible")}</span>{/if}</span>
+    <span class="nombre">{f.nombre}{#if f.estilos.length > 1}<span class="n"> · {f.estilos.length} {t("estilos")}</span>{/if}{#if f.duplicados?.length}<span class="dup" title={t("dup.pista")}> · {t("dup.corto")}</span>{/if}{#if f.error}<span class="roto"> · {t("err.ilegible")}</span>{/if}</span>
     <span
       class="muestra"
       class:off={!on}
@@ -63,6 +63,7 @@
   .nombre { font-size: var(--fs-body); color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .n { opacity: 0.75; }
   .roto { color: var(--red); }
+  .dup { color: #c2780a; }
   /* Recorta solo a lo ancho (para los «…»): por arriba y por abajo los adornos de las caligráficas pueden salirse. */
   .muestra {
     line-height: 1.38;

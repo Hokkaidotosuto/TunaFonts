@@ -202,3 +202,32 @@ fn rasgos_opentype_e_info_de_calibri() {
     assert!(i.copyright.is_some() && i.version.is_some(), "{i:?}");
     println!("{:?}\n{:?}", caras[0].rasgos, i);
 }
+
+/// El mismo estilo instalado y, además, en una carpeta vigilada: sale como duplicado.
+#[test]
+fn estilo_repetido_en_dos_archivos_es_duplicado() {
+    let tmp = tempfile::tempdir().unwrap();
+    let base = format!(r"Software\tuna-fonts-pruebas\dup-{}", std::process::id());
+    let _limpia = Limpieza(base.clone());
+    let ent = Entorno {
+        fuentes_sistema: tmp.path().join("sistema"),
+        fuentes_usuario: tmp.path().join("usuario"),
+        clave_sistema: format!(r"{base}\Sistema"),
+        clave_usuario: format!(r"{base}\Fonts"),
+        datos: tmp.path().join("datos"),
+        tocar_windows: false,
+        de_windows: |_| true,
+        de_programas: HashSet::new(),
+    };
+    let fuente = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/GochiHand-Regular.ttf");
+    cambios::instalar_usuario(&ent, &fuente, &leer::caras(&fuente).unwrap()).unwrap();
+    let carpeta = tmp.path().join("vigilada");
+    std::fs::create_dir_all(&carpeta).unwrap();
+    std::fs::copy(&fuente, carpeta.join("copia.ttf")).unwrap();
+
+    let mut cache = Cache::default();
+    cache.actualizar(&fuentes::entradas(&ent, &[carpeta.clone()]));
+    let f = cache.familias.iter().find(|f| f.nombre == "Gochi Hand").unwrap();
+    assert_eq!(f.estilos.len(), 1);
+    assert_eq!(f.duplicados.len(), 1, "{:?}", f.duplicados);
+}

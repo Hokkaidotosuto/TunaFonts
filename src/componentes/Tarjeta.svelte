@@ -5,13 +5,13 @@
   import { t } from "../lib/i18n.svelte.js";
   import { encajar } from "../lib/encajar.js";
 
-  let { f, estilo, sel, fav, bloqueada, motivo, onsel, onabrir, onalternar, onfav, onarrastre } = $props();
+  let { f, estilo, sel, fav, bloqueada, motivo, onsel, onabrir, onalternar, onfav, onarrastre, oncontexto } = $props();
   const on = $derived(f.activa || bloqueada);
   const aa = $derived(f.categoria === "otros" ? "あ" : "Aa");
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-<div class="tarjeta" class:sel onclick={onsel} ondblclick={onabrir} onpointerdown={onarrastre} data-familia={f.nombre}>
+<div class="tarjeta" class:sel onclick={onsel} ondblclick={onabrir} onpointerdown={onarrastre} oncontextmenu={oncontexto} data-familia={f.nombre}>
   <div
     class="aa"
     class:off={!on}

@@ -36,6 +36,12 @@ export const esFavorita = (n) => biblioteca.favoritas.includes(n);
 export const copiaBiblioteca = () =>
   JSON.stringify({ app: "tuna-fonts", tipo: "biblioteca", version: 1, favoritas: $state.snapshot(biblioteca.favoritas), colecciones: $state.snapshot(biblioteca.colecciones).map(({ nombre, fuentes }) => ({ nombre, fuentes })) }, null, 2);
 
+/** Una sola colección, con el mismo formato (se importa igual, desde Ajustes). */
+export function copiaColeccion(id) {
+  const c = biblioteca.colecciones.find((x) => x.id === id);
+  return JSON.stringify({ app: "tuna-fonts", tipo: "coleccion", version: 1, favoritas: [], colecciones: c ? [{ nombre: c.nombre, fuentes: $state.snapshot(c.fuentes) }] : [] }, null, 2);
+}
+
 /**
  * Mezcla una copia con lo que ya hay: suma favoritas y, en las colecciones con
  * el mismo nombre, suma fuentes; las demás se crean. Nunca borra nada.

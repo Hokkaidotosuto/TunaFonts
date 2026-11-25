@@ -181,11 +181,74 @@ async fn desinstalar(app: AppHandle, familias: Vec<String>) -> Result<Salida, St
 async fn instalar(app: AppHandle, rutas: Vec<String>, para_todos: bool) -> Result<Salida, String> {
     fondo(move || {
         let estado = app.state::<Estado>();
-        let r = instalar_archivos(&estado, &rutas.iter().map(PathBuf::from).collect::<Vec<_>>(), para_todos);
+        // Los .zip se abren en una carpeta temporal y se instalan las fuentes de dentro.
+        let tmp = estado.ent.datos.join("zip-temporal");
+        let _ = fs::remove_dir_all(&tmp);
+        let mut archivos = Vec::new();
+        let mut errores = Vec::new();
+        for (i, ruta) in rutas.iter().map(PathBuf::from).enumerate() {
+            if ruta.extension().is_some_and(|e| e.eq_ignore_ascii_case("zip")) {
+                match fuentes_del_zip(&ruta, &tmp.join(i.to_string())) {
+                    Ok(v) if v.is_empty() => errores.push(format!("{}: no trae ninguna fuente", nombre_de(&ruta))),
+                    Ok(v) => archivos.extend(v),
+                    Err(e) => errores.push(format!("{}: {e}", nombre_de(&ruta))),
+                }
+            } else {
+                archivos.push(ruta);
+            }
+        }
+        let mut r = instalar_archivos(&estado, &archivos, para_todos);
+        r.errores.extend(errores);
+        let _ = fs::remove_dir_all(&tmp);
         let (familias, _) = estado.refrescar();
         Ok(Salida { familias, resultado: r })
     })
     .await
+}
+
+fn nombre_de(ruta: &Path) -> String {
+    ruta.file_name().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default()
+}
+
+/// Saca las fuentes de un .zip (también de sus subcarpetas) a `destino`, cada una
+/// en su carpeta para que no choquen los nombres. Con topes, por si el zip es
+/// una bomba: 64 MB por fuente, 1 GB en total y 2000 archivos.
+fn fuentes_del_zip(zip: &Path, destino: &Path) -> Result<Vec<PathBuf>, String> {
+    use std::io::Read;
+    const POR_FUENTE: u64 = 64 * 1024 * 1024;
+    const TOTAL: u64 = 1024 * 1024 * 1024;
+    let mut z = zip::ZipArchive::new(fs::File::open(zip).map_err(err)?).map_err(|_| "el .zip está dañado".to_string())?;
+    if z.len() > 20_000 {
+        return Err("el .zip tiene demasiados archivos".into());
+    }
+    let (mut fuera, mut total) = (Vec::new(), 0u64);
+    for i in 0..z.len() {
+        let mut e = z.by_index(i).map_err(err)?;
+        if !e.is_file() || e.encrypted() {
+            continue;
+        }
+        // Solo el nombre del archivo: nada de rutas que salgan de la carpeta.
+        let Some(nombre) = Path::new(e.name()).file_name().map(|s| s.to_owned()) else { continue };
+        let nombre_txt = nombre.to_string_lossy();
+        if nombre_txt.starts_with("._") || !fuentes::es_fuente(Path::new(&nombre)) {
+            continue;
+        }
+        if fuera.len() >= 2000 || e.size() > POR_FUENTE || total + e.size() > TOTAL {
+            return Err("el .zip es demasiado grande".into());
+        }
+        let mut datos = Vec::with_capacity(e.size() as usize);
+        (&mut e).take(POR_FUENTE + 1).read_to_end(&mut datos).map_err(err)?;
+        if datos.len() as u64 > POR_FUENTE {
+            return Err("el .zip es demasiado grande".into());
+        }
+        total += datos.len() as u64;
+        let carpeta = destino.join(fuera.len().to_string());
+        fs::create_dir_all(&carpeta).map_err(err)?;
+        let ruta = carpeta.join(&nombre);
+        fs::write(&ruta, datos).map_err(err)?;
+        fuera.push(ruta);
+    }
+    Ok(fuera)
 }
 
 fn instalar_archivos(estado: &Estado, rutas: &[PathBuf], para_todos: bool) -> cambios::Resultado {
@@ -281,9 +344,15 @@ fn abrir_enlace_fuente(url: String) -> Result<(), String> {
 
 /// Guarda la copia de la biblioteca (favoritas y colecciones) donde diga el usuario.
 #[tauri::command]
-async fn exportar_biblioteca(app: AppHandle, contenido: String) -> Result<bool, String> {
+async fn exportar_biblioteca(app: AppHandle, contenido: String, nombre: Option<String>) -> Result<bool, String> {
     use tauri_plugin_dialog::DialogExt;
-    let Some(ruta) = app.dialog().file().set_file_name("tuna-fonts-biblioteca.json").add_filter("JSON", &["json"]).blocking_save_file() else { return Ok(false) };
+    // Nombre propuesto: el de la colección (sin caracteres que Windows no admite) o el de la biblioteca.
+    let nombre = nombre
+        .map(|n| n.chars().filter(|c| !r#"<>:"/\|?*"#.contains(*c) && !c.is_control()).collect::<String>().trim().to_string())
+        .filter(|n| !n.is_empty())
+        .map(|n| format!("{n}.json"))
+        .unwrap_or_else(|| "tuna-fonts-biblioteca.json".into());
+    let Some(ruta) = app.dialog().file().set_file_name(nombre).add_filter("JSON", &["json"]).blocking_save_file() else { return Ok(false) };
     fs::write(ruta.into_path().map_err(err)?, contenido).map_err(err)?;
     Ok(true)
 }
@@ -672,4 +741,34 @@ pub fn run() {
             app.state::<Estado>().descargar_carpetas();
         }
     });
+}
+
+#[cfg(test)]
+mod pruebas_zip {
+    use super::*;
+    use std::io::Write;
+
+    #[test]
+    fn saca_solo_fuentes_y_sin_salirse_de_la_carpeta() {
+        let tmp = tempfile::tempdir().unwrap();
+        let fuente = fs::read(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/GochiHand-Regular.ttf")).unwrap();
+        let zip_ruta = tmp.path().join("pack.zip");
+        let mut z = zip::ZipWriter::new(fs::File::create(&zip_ruta).unwrap());
+        let op = zip::write::SimpleFileOptions::default();
+        for nombre in ["Familia/Static/GochiHand-Regular.ttf", "../../fuera.ttf", "__MACOSX/._GochiHand-Regular.ttf"] {
+            z.start_file(nombre, op).unwrap();
+            z.write_all(&fuente).unwrap();
+        }
+        z.start_file("LEEME.txt", op).unwrap();
+        z.write_all(b"hola").unwrap();
+        z.finish().unwrap();
+
+        let destino = tmp.path().join("sale");
+        let v = fuentes_del_zip(&zip_ruta, &destino).unwrap();
+        let nombres: Vec<String> = v.iter().map(|p| nombre_de(p)).collect();
+        assert_eq!(nombres, ["GochiHand-Regular.ttf", "fuera.ttf"]);
+        assert!(v.iter().all(|p| p.starts_with(&destino)), "{v:?}");
+        assert!(!tmp.path().join("fuera.ttf").exists());
+        assert!(fuentes::leer::caras(&v[0]).is_ok());
+    }
 }

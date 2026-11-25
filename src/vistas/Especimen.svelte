@@ -22,6 +22,21 @@
     if (f.error) return;
     llamar("info_fuente", { ruta }).then((i) => { if (ruta === f.archivo) info = i; }).catch(() => {});
   });
+  // Alfabetos que cubre, contando los caracteres de verdad del archivo (cmap).
+  const ESCRITURAS = [
+    ["latino", 0x41, 0x7a, 40], ["latinoAmp", 0x100, 0x24f, 80], ["griego", 0x370, 0x3ff, 40], ["cirilico", 0x400, 0x4ff, 40],
+    ["armenio", 0x530, 0x58f, 30], ["hebreo", 0x590, 0x5ff, 20], ["arabe", 0x600, 0x6ff, 30], ["devanagari", 0x900, 0x97f, 40],
+    ["tailandes", 0xe00, 0xe7f, 40], ["georgiano", 0x10a0, 0x10ff, 30], ["kana", 0x3040, 0x30ff, 60], ["han", 0x4e00, 0x9fff, 200], ["hangul", 0xac00, 0xd7af, 200],
+  ];
+  const escrituras = $derived.by(() => {
+    if (!glifos.length) return [];
+    const n = {};
+    for (const g of glifos) {
+      const c = g.codePointAt(0);
+      for (const [k, a, b] of ESCRITURAS) if (c >= a && c <= b) n[k] = (n[k] ?? 0) + 1;
+    }
+    return ESCRITURAS.filter(([k, , , min]) => (n[k] ?? 0) >= min).map(([k]) => k);
+  });
   const comoSale = $derived([...new Set(f.estilos.map((s) => s.familia_win).filter(Boolean))]);
   const abrirEnlace = (url) => llamar("abrir_enlace_fuente", { url }).catch(() => {});
   const enlace = (s) => (s && /^https?:\/\//i.test(s.trim()) ? s.trim() : null);
@@ -131,6 +146,25 @@
     {/each}
   </div>
 
+  {#if escrituras.length}
+    <div class="bloque">
+      <span class="etiqueta">{t("esc.titulo", { n: escrituras.length })}</span>
+      <div class="rasgos">
+        {#each escrituras as k (k)}<span class="rasgo">{t("esc." + k)}</span>{/each}
+      </div>
+    </div>
+  {/if}
+
+  {#if f.duplicados?.length}
+    <div class="bloque aviso-dup">
+      <span class="etiqueta">{t("dup.titulo")}</span>
+      <span class="pista-dup">{t("dup.texto")}</span>
+      {#each f.duplicados as a (a)}
+        <button type="button" class="archivo" title={t("ruta.mostrar")} onclick={() => mostrarEnExplorador(a)}><span class="txt">{a}</span><FolderOpen size={13} strokeWidth={1.9} /></button>
+      {/each}
+    </div>
+  {/if}
+
   {#if rasgos.length}
     <div class="bloque">
       <span class="etiqueta">{t("rasgos.titulo", { n: rasgos.length })}</span>
@@ -236,6 +270,8 @@
   .glifo:hover { background: var(--ink); color: var(--win); transform: scale(1.06); }
   .estilo { display: flex; flex-direction: column; gap: 1px; padding: 6px 0; }
   .estilo .n { font-size: var(--fs-meta); color: var(--ink3); }
+  .aviso-dup { padding: 12px 14px; border-radius: 12px; background: var(--chip); align-items: flex-start; }
+  .pista-dup { font-size: var(--fs-body); color: var(--ink2); }
   .rasgos { display: flex; flex-wrap: wrap; gap: 6px; }
   .rasgo { display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 6px; border-radius: 999px; background: var(--chip); font: 600 var(--fs-small) var(--sans); }
   .rasgo code { padding: 1px 5px; border-radius: 5px; background: var(--win); color: var(--ink3); font: 500 var(--fs-meta) var(--mono); }

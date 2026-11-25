@@ -315,6 +315,9 @@ pub struct Familia {
     /// Funciones OpenType de cualquiera de sus estilos (ver leer::RASGOS).
     #[serde(default)]
     pub rasgos: Vec<String>,
+    /// Archivos que repiten un estilo que ya está en otro archivo de la familia.
+    #[serde(default)]
+    pub duplicados: Vec<String>,
 }
 
 /// Agrupa las entradas ya leídas por familia.
@@ -340,6 +343,7 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         archivos: vec![archivo],
                         error: Some(err),
                         rasgos: vec![],
+                        duplicados: vec![],
                     },
                 );
             }
@@ -356,6 +360,7 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         archivos: vec![],
                         error: None,
                         rasgos: vec![],
+                        duplicados: vec![],
                     });
                     for r in &c.rasgos {
                         if !f.rasgos.contains(r) {
@@ -371,7 +376,12 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         f.archivo = archivo.clone();
                         f.categoria = c.categoria.clone();
                     }
-                    if !f.estilos.iter().any(|s| s.nombre == c.estilo && s.peso == c.peso && s.cursiva == c.cursiva) {
+                    let repetido = f.estilos.iter().find(|s| s.nombre == c.estilo && s.peso == c.peso && s.cursiva == c.cursiva);
+                    if let Some(s) = repetido {
+                        if s.archivo != archivo && !f.duplicados.contains(&archivo) {
+                            f.duplicados.push(archivo.clone());
+                        }
+                    } else {
                         f.estilos.push(Estilo { nombre: c.estilo, peso: c.peso, cursiva: c.cursiva, archivo: archivo.clone(), familia_win: c.familia_win, completo: c.completo });
                     }
                 }
