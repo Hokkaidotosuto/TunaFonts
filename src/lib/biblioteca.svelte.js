@@ -32,6 +32,40 @@ $effect.root(() => {
 
 export const esFavorita = (n) => biblioteca.favoritas.includes(n);
 
+/** La biblioteca como texto, para guardarla en un archivo y llevarla a otro PC. */
+export const copiaBiblioteca = () =>
+  JSON.stringify({ app: "tuna-fonts", tipo: "biblioteca", version: 1, favoritas: $state.snapshot(biblioteca.favoritas), colecciones: $state.snapshot(biblioteca.colecciones).map(({ nombre, fuentes }) => ({ nombre, fuentes })) }, null, 2);
+
+/**
+ * Mezcla una copia con lo que ya hay: suma favoritas y, en las colecciones con
+ * el mismo nombre, suma fuentes; las demás se crean. Nunca borra nada.
+ * Devuelve { colecciones, favoritas } añadidas, o null si no es una copia válida.
+ */
+export function mezclarCopia(texto) {
+  let d;
+  try {
+    d = JSON.parse(texto);
+  } catch {
+    return null;
+  }
+  if (d?.app !== "tuna-fonts" || !Array.isArray(d.colecciones) || !Array.isArray(d.favoritas)) return null;
+  const nombres = (l) => (Array.isArray(l) ? l.filter((x) => typeof x === "string" && x.length < 300) : []);
+  let favoritas = 0;
+  for (const n of nombres(d.favoritas)) if (!biblioteca.favoritas.includes(n)) (biblioteca.favoritas.push(n), favoritas++);
+  let colecciones = 0;
+  for (const c of d.colecciones) {
+    if (typeof c?.nombre !== "string" || !c.nombre.trim()) continue;
+    let mia = biblioteca.colecciones.find((x) => x.nombre.toLowerCase() === c.nombre.trim().toLowerCase());
+    if (!mia) {
+      nuevaColeccion(c.nombre.trim().slice(0, 80));
+      mia = biblioteca.colecciones.at(-1);
+      colecciones++;
+    }
+    for (const n of nombres(c.fuentes)) if (!mia.fuentes.includes(n)) mia.fuentes.push(n);
+  }
+  return { colecciones, favoritas };
+}
+
 export function alternarFavorita(n) {
   const i = biblioteca.favoritas.indexOf(n);
   if (i >= 0) biblioteca.favoritas.splice(i, 1);

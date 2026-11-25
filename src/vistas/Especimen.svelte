@@ -3,7 +3,7 @@
   // real de la fuente (tabla cmap; clic para copiar), los estilos y la ruta.
   import { ChevronLeft, FolderOpen } from "@lucide/svelte";
   import Corazon from "../componentes/Corazon.svelte";
-  import { estiloDe, caracteres, mostrarEnExplorador } from "../lib/fuentes.svelte.js";
+  import { estiloDe, caracteres, mostrarEnExplorador, llamar } from "../lib/fuentes.svelte.js";
   import { avisar } from "../lib/avisos.svelte.js";
   import { t } from "../lib/i18n.svelte.js";
 
@@ -11,6 +11,32 @@
 
 
   const e = $derived(estiloDe(f));
+
+  // Lo que dice el archivo de sí mismo: autor, licencia, versión…
+  let info = $state(null);
+  let licenciaEntera = $state(false);
+  $effect(() => {
+    const ruta = f.archivo;
+    info = null;
+    licenciaEntera = false;
+    if (f.error) return;
+    llamar("info_fuente", { ruta }).then((i) => { if (ruta === f.archivo) info = i; }).catch(() => {});
+  });
+  const comoSale = $derived([...new Set(f.estilos.map((s) => s.familia_win).filter(Boolean))]);
+  const abrirEnlace = (url) => llamar("abrir_enlace_fuente", { url }).catch(() => {});
+  const enlace = (s) => (s && /^https?:\/\//i.test(s.trim()) ? s.trim() : null);
+  // Funciones OpenType con su demostración (las demás solo se nombran).
+  const RASGOS = ["smcp", "c2sc", "onum", "lnum", "tnum", "pnum", "liga", "dlig", "swsh", "salt", "ss", "frac", "zero"];
+  const rasgos = $derived(RASGOS.filter((r) => f.rasgos?.includes(r)));
+  const demos = $derived(
+    [
+      f.rasgos?.includes("smcp") && { titulo: t("ras.smcp"), css: '"smcp"', texto: muestra },
+      f.rasgos?.includes("onum") && { titulo: t("ras.onum"), css: '"onum"', texto: "0123456789" },
+      f.rasgos?.includes("dlig") && { titulo: t("ras.dlig"), css: '"dlig"', texto: "ct st sp Th fi fl ffi" },
+      f.rasgos?.includes("swsh") && { titulo: t("ras.swsh"), css: '"swsh"', texto: muestra },
+      f.rasgos?.includes("frac") && { titulo: t("ras.frac"), css: '"frac"', texto: "1/2 3/4 5/8" },
+    ].filter(Boolean),
+  );
   const otros = $derived(f.categoria === "otros");
   const meta = $derived(`${f.estilos.length} ${f.estilos.length === 1 ? t("estilo") : t("estilos")} · ${t("origen." + f.origen)}`);
   const juegos = $derived(
@@ -105,6 +131,45 @@
     {/each}
   </div>
 
+  {#if rasgos.length}
+    <div class="bloque">
+      <span class="etiqueta">{t("rasgos.titulo", { n: rasgos.length })}</span>
+      <div class="rasgos">
+        {#each rasgos as r (r)}<span class="rasgo" title={t("ras." + r + "Pista")}><code>{r}</code>{t("ras." + r)}</span>{/each}
+      </div>
+      {#each demos as d (d.titulo)}
+        <div class="estilo">
+          <span class="n">{d.titulo}</span>
+          <span class="linea" style:font-family={e.familia} style:font-weight={e.peso} style:font-style={e.cursiva ? "italic" : "normal"} style:font-size="26px" style:font-feature-settings={d.css}>{d.texto}</span>
+        </div>
+      {/each}
+    </div>
+  {/if}
+
+  {#if info}
+    <div class="bloque">
+      <span class="etiqueta">{t("info.titulo")}</span>
+      <dl class="info">
+        {#if comoSale.length}<dt>{t("info.comoSale")}</dt><dd>{comoSale.join(", ")}</dd>{/if}
+        {#if info.disenador}<dt>{t("info.disenador")}</dt><dd>{info.disenador}</dd>{/if}
+        {#if info.fabricante}<dt>{t("info.fabricante")}</dt><dd>{info.fabricante}</dd>{/if}
+        {#if info.version}<dt>{t("info.version")}</dt><dd>{info.version}</dd>{/if}
+        {#if enlace(info.url)}<dt>{t("info.web")}</dt><dd><button type="button" class="enlace" onclick={() => abrirEnlace(enlace(info.url))}>{enlace(info.url)}</button></dd>{/if}
+        {#if info.licencia || enlace(info.licencia_url)}
+          <dt>{t("info.licencia")}</dt>
+          <dd>
+            {#if info.licencia}
+              <span class="largo" class:entero={licenciaEntera}>{info.licencia}</span>
+              {#if info.licencia.length > 240}<button type="button" class="enlace" onclick={() => (licenciaEntera = !licenciaEntera)}>{licenciaEntera ? t("info.verMenos") : t("info.verMas")}</button>{/if}
+            {/if}
+            {#if enlace(info.licencia_url)}<button type="button" class="enlace" onclick={() => abrirEnlace(enlace(info.licencia_url))}>{enlace(info.licencia_url)}</button>{/if}
+          </dd>
+        {/if}
+        {#if info.copyright}<dt>{t("info.copyright")}</dt><dd><span class="largo">{info.copyright}</span></dd>{/if}
+      </dl>
+    </div>
+  {/if}
+
   <div class="ruta">
     {#each f.archivos as a (a)}
       <button type="button" class="archivo" title={t("ruta.mostrar")} onclick={() => mostrarEnExplorador(a)}>
@@ -171,6 +236,15 @@
   .glifo:hover { background: var(--ink); color: var(--win); transform: scale(1.06); }
   .estilo { display: flex; flex-direction: column; gap: 1px; padding: 6px 0; }
   .estilo .n { font-size: var(--fs-meta); color: var(--ink3); }
+  .rasgos { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rasgo { display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 6px; border-radius: 999px; background: var(--chip); font: 600 var(--fs-small) var(--sans); }
+  .rasgo code { padding: 1px 5px; border-radius: 5px; background: var(--win); color: var(--ink3); font: 500 var(--fs-meta) var(--mono); }
+  .info { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 18px; margin: 0; font-size: var(--fs-body); }
+  .info dt { color: var(--ink3); }
+  .info dd { margin: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; color: var(--ink2); overflow-wrap: anywhere; }
+  .largo { white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .largo.entero { display: block; }
+  .enlace { padding: 0; border: 0; background: none; color: var(--ink); font: 500 var(--fs-body) var(--sans); text-decoration: underline; text-underline-offset: 2px; text-align: left; overflow-wrap: anywhere; }
   .ruta { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding-top: 14px; border-top: 1px solid var(--line); }
   /* Cada ruta abre el Explorador con el archivo seleccionado; la carpeta aparece al pasar el ratón. */
   .archivo {

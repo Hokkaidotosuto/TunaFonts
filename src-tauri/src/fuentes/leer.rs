@@ -28,6 +28,60 @@ pub struct Cara {
     pub peso: u16,
     pub cursiva: bool,
     pub categoria: String,
+    /// Funciones OpenType que interesan para filtrar (smcp, onum, liga…).
+    #[serde(default)]
+    pub rasgos: Vec<String>,
+}
+
+/// Las funciones OpenType (tabla GSUB) por las que se puede filtrar. Los
+/// conjuntos estilísticos ss01…ss20 cuentan todos como «ss».
+const RASGOS: &[&str] = &["smcp", "c2sc", "onum", "lnum", "tnum", "pnum", "liga", "dlig", "swsh", "salt", "frac", "zero", "ss"];
+
+/// Lee la lista de funciones de una tabla GSUB (cabecera → FeatureList → etiquetas).
+fn rasgos_gsub(gsub: Option<&[u8]>) -> Vec<String> {
+    let Some(d) = gsub else { return vec![] };
+    let Some(lista) = be16(d, 6).map(|o| o as usize) else { return vec![] };
+    let Some(n) = be16(d, lista) else { return vec![] };
+    let mut v: Vec<String> = Vec::new();
+    for i in 0..n as usize {
+        let Some(tag) = d.get(lista + 2 + i * 6..lista + 2 + i * 6 + 4) else { break };
+        let tag = String::from_utf8_lossy(tag).to_string();
+        let tag = if tag.starts_with("ss") && tag[2..].chars().all(|c| c.is_ascii_digit()) { "ss".to_string() } else { tag };
+        if RASGOS.contains(&tag.as_str()) && !v.contains(&tag) {
+            v.push(tag);
+        }
+    }
+    v.sort();
+    v
+}
+
+/// Lo que dice la propia fuente de sí misma (tabla name), para la ficha.
+#[derive(Serialize, Default, Debug)]
+pub struct Info {
+    pub copyright: Option<String>,
+    pub version: Option<String>,
+    pub fabricante: Option<String>,
+    pub disenador: Option<String>,
+    pub url: Option<String>,
+    pub licencia: Option<String>,
+    pub licencia_url: Option<String>,
+}
+
+pub fn info(ruta: &Path) -> Result<Info, String> {
+    let mut f = File::open(ruta).map_err(|e| e.to_string())?;
+    let inicio = *inicios(&mut f)?.first().ok_or("vacío")?;
+    let t = tablas(&mut f, inicio, &[b"name"])?;
+    let name = t[0].as_deref().and_then(ttf_parser::name::Table::parse).ok_or("sin tabla name")?;
+    let url = nombre(&name, 12).or_else(|| nombre(&name, 11));
+    Ok(Info {
+        copyright: nombre(&name, 0),
+        version: nombre(&name, 5),
+        fabricante: nombre(&name, 8),
+        disenador: nombre(&name, 9),
+        url,
+        licencia: nombre(&name, 13),
+        licencia_url: nombre(&name, 14),
+    })
 }
 
 fn be16(b: &[u8], i: usize) -> Option<u16> {
@@ -111,9 +165,10 @@ pub fn caras(ruta: &Path) -> Result<Vec<Cara>, String> {
     let mut f = File::open(ruta).map_err(|e| e.to_string())?;
     let mut fuera = Vec::new();
     for inicio in inicios(&mut f)? {
-        let t = tablas(&mut f, inicio, &[b"name", b"OS/2"])?;
+        let t = tablas(&mut f, inicio, &[b"name", b"OS/2", b"GSUB"])?;
         let name = t[0].as_deref().and_then(ttf_parser::name::Table::parse).ok_or("sin tabla name")?;
         let os2 = t[1].as_deref();
+        let rasgos = rasgos_gsub(t[2].as_deref());
 
         let familia_win = nombre(&name, 1).unwrap_or_else(|| sin_extension(ruta));
         let familia = nombre(&name, 16).unwrap_or_else(|| familia_win.clone());
@@ -137,7 +192,7 @@ pub fn caras(ruta: &Path) -> Result<Vec<Cara>, String> {
                 d.codepages = be32(o, 78);
             }
         }
-        fuera.push(Cara { familia, familia_win, estilo, completo, peso, cursiva, categoria: categoria::clasificar(&d).into() });
+        fuera.push(Cara { familia, familia_win, estilo, completo, peso, cursiva, categoria: categoria::clasificar(&d).into(), rasgos: rasgos.clone() });
     }
     if fuera.is_empty() {
         return Err("el archivo no trae ninguna fuente".into());

@@ -8,12 +8,14 @@
 
   // seccion: instaladas | descubrir | favoritas | col:<id> | car:<ruta>
   let {
-    seccion, cat, cuentas, catCuentas, colecciones, carpetas, pie, renombrando = $bindable(),
-    onseccion, oncat, onnueva, onrenombrar, onanadirCarpeta, onajustes, onacerca,
+    seccion, cat, cuentas, catCuentas, rasgo = null, rasgoCuentas = {}, colecciones, carpetas, pie, renombrando = $bindable(),
+    onseccion, oncat, onrasgo, onnueva, onrenombrar, onanadirCarpeta, onajustes, onacerca,
   } = $props();
 
   const CATEGORIAS = ["sans", "serif", "script", "display", "mono", "otros"];
   const categoriasVisibles = $derived(CATEGORIAS.filter((c) => (catCuentas[c] ?? 0) > 0 || cat === c));
+  const RASGOS = ["smcp", "onum", "tnum", "liga", "swsh", "ss", "frac"];
+  const rasgosVisibles = $derived(RASGOS.filter((r) => (rasgoCuentas[r] ?? 0) > 0 || rasgo === r));
 
   let borrador = $state("");
   let campo = $state();
@@ -145,6 +147,16 @@
         <span class="titulo">{t("grupo.categorias")}</span>
         {#each categoriasVisibles as c (c)}
           {@render item(t("cat." + c), cat === c, () => oncat(cat === c ? null : c), catCuentas[c] ?? 0)}
+        {/each}
+      </div>
+    {/if}
+
+    <!-- Funciones OpenType que traen las fuentes (no en Descubrir: el catálogo no las dice). -->
+    {#if rasgosVisibles.length}
+      <div class="grupo">
+        <span class="titulo">{t("grupo.rasgos")}</span>
+        {#each rasgosVisibles as r (r)}
+          {@render item(t("ras." + r), rasgo === r, () => onrasgo(rasgo === r ? null : r), rasgoCuentas[r] ?? 0, { titulo: t("ras." + r + "Pista") })}
         {/each}
       </div>
     {/if}

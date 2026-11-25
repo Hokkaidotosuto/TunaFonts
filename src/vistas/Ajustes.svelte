@@ -8,6 +8,7 @@
   import { t } from "../lib/i18n.svelte.js";
   import { avisar } from "../lib/avisos.svelte.js";
   import { respaldadas, restaurarSistema, fuentes, llamar, ponerLista } from "../lib/fuentes.svelte.js";
+  import { copiaBiblioteca, mezclarCopia } from "../lib/biblioteca.svelte.js";
   import { comboDe } from "../lib/atajos.js";
   import { nueva, buscarApp } from "../lib/actualizador.svelte.js";
   import { enTauri } from "../lib/ajustes.svelte.js";
@@ -82,6 +83,26 @@
     { etiqueta: t("aj.idioma"), pista: "", valor: ajustes.idioma, elegir: ponerIdioma, opciones: [["es", "español"], ["en", "english"], ["zh", "中文"], ["pt", "português"]] },
   ]);
 
+  // ---- copia de la biblioteca ----
+  async function exportar() {
+    try {
+      if (await llamar("exportar_biblioteca", { contenido: copiaBiblioteca() })) avisar("ok", t("ok.exportada"), t("ok.exportadaTexto"));
+    } catch (e) {
+      avisar("err", t("err.una"), String(e));
+    }
+  }
+  async function importar() {
+    try {
+      const texto = await llamar("importar_biblioteca");
+      if (texto == null) return;
+      const r = mezclarCopia(texto);
+      if (!r) return avisar("err", t("err.importar"), "");
+      avisar("ok", t("ok.importada", { c: r.colecciones, f: r.favoritas }), t("ok.importadaTexto"));
+    } catch (e) {
+      avisar("err", t("err.una"), String(e));
+    }
+  }
+
   // ---- atajos ----
   let grabando = $state(null);
   const bonita = (k) => (k === "Space" ? t("atajos.espacio") : k);
@@ -120,7 +141,7 @@
     avisar("ok", t("ok.atajosRestaurados"), "");
   }
 
-  const novedades = $derived([t("nov.18"), t("nov.19"), t("nov.17"), t("nov.15")]);
+  const novedades = $derived([t("nov.21"), t("nov.22"), t("nov.23"), t("nov.24")]);
 </script>
 
 <svelte:window onkeydowncapture={tecla} />
@@ -168,6 +189,16 @@
           {:else}
             <button type="button" class="boton" disabled={nueva.estado === "buscando" || !enTauri} onclick={() => buscarApp(true)}>{t("act.buscarAhora")}</button>
           {/if}
+        </div>
+        <div class="fila">
+          <span class="txt">
+            <span class="eti">{t("bib.titulo")}</span>
+            <span class="pista">{t("bib.pista")}</span>
+          </span>
+          <span class="botones">
+            <button type="button" class="boton" disabled={!enTauri} onclick={exportar}>{t("bib.exportar")}</button>
+            <button type="button" class="boton" disabled={!enTauri} onclick={importar}>{t("bib.importar")}</button>
+          </span>
         </div>
         {#if nRespaldo > 0}
           <div class="fila">
@@ -329,6 +360,7 @@
   .eti { font-size: var(--fs-body); font-weight: 600; }
   .pista { font-size: var(--fs-small); color: var(--ink2); }
   .pista.menos { font-size: var(--fs-small); }
+  .botones { display: flex; gap: 6px; flex: none; }
   .prueba { display: flex; flex-direction: column; gap: 8px; }
   .prueba input { height: 32px; padding: 0 10px; border-radius: 8px; border: 0; box-shadow: 0 0 0 1px var(--line2); background: var(--field); font: 500 var(--fs-body) var(--sans); color: var(--ink); outline: 0; }
   .boton { flex: none; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--chip); color: var(--ink); font: 600 var(--fs-small) var(--sans); }

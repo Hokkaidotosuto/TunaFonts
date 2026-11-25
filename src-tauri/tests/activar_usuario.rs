@@ -185,3 +185,20 @@ fn desinstalar_una_de_usuario_activa_y_otra_desactivada() {
     assert!(fuentes::guardadas(&ent).is_empty());
     assert!(std::fs::read_dir(ent.desactivadas()).map(|d| d.count()).unwrap_or(0) == 0);
 }
+
+/// Con una fuente de Windows que se sabe que las trae: versalitas, números
+/// antiguos y ligaduras. Si no está (otro sistema), no comprueba nada.
+#[test]
+fn rasgos_opentype_e_info_de_calibri() {
+    let ruta = Path::new(r"C:\Windows\Fonts\calibri.ttf");
+    if !ruta.is_file() {
+        return;
+    }
+    let caras = leer::caras(ruta).unwrap();
+    for r in ["smcp", "onum", "liga"] {
+        assert!(caras[0].rasgos.iter().any(|x| x == r), "falta {r}: {:?}", caras[0].rasgos);
+    }
+    let i = leer::info(ruta).unwrap();
+    assert!(i.copyright.is_some() && i.version.is_some(), "{i:?}");
+    println!("{:?}\n{:?}", caras[0].rasgos, i);
+}

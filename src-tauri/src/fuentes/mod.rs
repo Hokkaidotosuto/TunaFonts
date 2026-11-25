@@ -312,6 +312,9 @@ pub struct Familia {
     pub archivos: Vec<String>,
     /// Si el archivo no se ha podido leer.
     pub error: Option<String>,
+    /// Funciones OpenType de cualquiera de sus estilos (ver leer::RASGOS).
+    #[serde(default)]
+    pub rasgos: Vec<String>,
 }
 
 /// Agrupa las entradas ya leídas por familia.
@@ -336,6 +339,7 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         archivo: archivo.clone(),
                         archivos: vec![archivo],
                         error: Some(err),
+                        rasgos: vec![],
                     },
                 );
             }
@@ -351,7 +355,13 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         archivo: archivo.clone(),
                         archivos: vec![],
                         error: None,
+                        rasgos: vec![],
                     });
+                    for r in &c.rasgos {
+                        if !f.rasgos.contains(r) {
+                            f.rasgos.push(r.clone());
+                        }
+                    }
                     f.activa |= e.activa;
                     if !f.archivos.contains(&archivo) {
                         f.archivos.push(archivo.clone());

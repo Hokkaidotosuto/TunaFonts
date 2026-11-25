@@ -268,6 +268,44 @@ async fn caracteres(ruta: String) -> Result<Vec<u32>, String> {
     fondo(move || fuentes::leer::caracteres(Path::new(&ruta), 4000)).await
 }
 
+/// Abre una web que trae la propia fuente (diseñador, licencia). Solo http(s).
+#[tauri::command]
+fn abrir_enlace_fuente(url: String) -> Result<(), String> {
+    let u = url.trim();
+    let l = u.to_ascii_lowercase();
+    if !(l.starts_with("https://") || l.starts_with("http://")) || u.chars().any(|c| c.is_whitespace() || c == '"') {
+        return Err("solo se abren direcciones web".into());
+    }
+    win::abrir_url(u)
+}
+
+/// Guarda la copia de la biblioteca (favoritas y colecciones) donde diga el usuario.
+#[tauri::command]
+async fn exportar_biblioteca(app: AppHandle, contenido: String) -> Result<bool, String> {
+    use tauri_plugin_dialog::DialogExt;
+    let Some(ruta) = app.dialog().file().set_file_name("tuna-fonts-biblioteca.json").add_filter("JSON", &["json"]).blocking_save_file() else { return Ok(false) };
+    fs::write(ruta.into_path().map_err(err)?, contenido).map_err(err)?;
+    Ok(true)
+}
+
+/// Lee una copia de la biblioteca elegida por el usuario (la interfaz la comprueba y la mezcla).
+#[tauri::command]
+async fn importar_biblioteca(app: AppHandle) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+    let Some(ruta) = app.dialog().file().add_filter("JSON", &["json"]).blocking_pick_file() else { return Ok(None) };
+    let ruta = ruta.into_path().map_err(err)?;
+    if fs::metadata(&ruta).map_err(err)?.len() > 5 * 1024 * 1024 {
+        return Err("el archivo es demasiado grande".into());
+    }
+    fs::read_to_string(ruta).map(Some).map_err(err)
+}
+
+/// Lo que dice el archivo de sí mismo (autor, licencia…), para la ficha.
+#[tauri::command]
+async fn info_fuente(ruta: String) -> Result<fuentes::leer::Info, String> {
+    fondo(move || fuentes::leer::info(Path::new(&ruta))).await
+}
+
 // ---- carpetas vigiladas ----
 
 fn guardar_carpetas(estado: &Estado) {
@@ -536,6 +574,10 @@ pub fn run() {
             fuentes_actualizar,
             alternar,
             desinstalar,
+            info_fuente,
+            abrir_enlace_fuente,
+            exportar_biblioteca,
+            importar_biblioteca,
             poner_carpetas_apagadas,
             instalar,
             restaurar_sistema,

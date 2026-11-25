@@ -34,6 +34,10 @@
   // instaladas | descubrir | favoritas | col:<id> | car:<ruta>
   let seccion = $state(ajustes.alAbrir === "favoritas" ? "favoritas" : "instaladas");
   let cat = $state(null);
+  // Filtro por función OpenType (versalitas, números antiguos…), combinable con la categoría.
+  let rasgo = $state(null);
+  const RASGOS = { smcp: ["smcp", "c2sc"], onum: ["onum"], tnum: ["tnum"], liga: ["liga", "dlig"], swsh: ["swsh"], ss: ["ss", "salt"], frac: ["frac"] };
+  const tieneRasgo = (f, r) => RASGOS[r].some((x) => f.rasgos?.includes(x));
   let q = $state("");
   let muestraPropia = $state("");
   let filtro = $state("todas");
@@ -88,6 +92,7 @@
     base.filter(
       (f) =>
         (!cat || f.categoria === cat) &&
+        (!rasgo || tieneRasgo(f, rasgo)) &&
         (!ql || f.nombre.toLowerCase().includes(ql)) &&
         (filtro === "todas" || (filtro === "activas") === (f.activa || bloqueada(f))),
     ),
@@ -101,6 +106,7 @@
             favs.has(g.nombre) &&
             !instaladasNombres.has(g.nombre.toLowerCase()) &&
             (!cat || g.categoria === cat) &&
+            !rasgo &&
             (!ql || g.nombre.toLowerCase().includes(ql)) &&
             filtro !== "activas",
         )
@@ -123,6 +129,12 @@
     return [...l].sort((a, b) => a.nombre.localeCompare(b.nombre));
   });
 
+  const rasgoCuentas = $derived.by(() => {
+    const c = {};
+    if (enDescubrir) return c;
+    for (const f of base) for (const r in RASGOS) if (tieneRasgo(f, r)) c[r] = (c[r] ?? 0) + 1;
+    return c;
+  });
   const catCuentas = $derived.by(() => {
     const c = {};
     for (const f of enDescubrir ? descubrir.lista : base) c[f.categoria] = (c[f.categoria] ?? 0) + 1;
@@ -178,6 +190,7 @@
     comparar = [];
     sel.clear();
     cat = null;
+    rasgo = null;
     colAbierta = false;
     if (s === "descubrir") cargarCatalogo();
   }
@@ -490,6 +503,9 @@
     {cat}
     {cuentas}
     {catCuentas}
+    {rasgo}
+    {rasgoCuentas}
+    onrasgo={(r) => ((rasgo = r), (detalle = null), (comparar = []))}
     colecciones={biblioteca.colecciones}
     carpetas={carpetasCuenta}
     pie={t("activas", { n: activasN, total: instaladas.length })}
