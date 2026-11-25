@@ -102,6 +102,9 @@ svg.lucide { display: block; flex: none; }
 .cambiando-tema *:not(.pastilla),
 .cambiando-tema *::before,
 .cambiando-tema *::after { transition: none !important; }
+/* La pastilla de los selectores sigue deslizándose, pero su color cambia de golpe:
+   si no, durante el cambio de tema se veía un momento negra en claro (o blanca en oscuro). */
+.cambiando-tema .pastilla { transition: var(--desliza) !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
