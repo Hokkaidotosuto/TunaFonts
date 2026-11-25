@@ -197,13 +197,16 @@ export const mostrarEnExplorador = (ruta) => llamar("mostrar_en_explorador", { r
 export { llamar };
 
 // Fuera de Tauri (vite en el navegador): unos datos de muestra para ver la interfaz.
-function demo(cmd) {
+// window.__DEMO__ (solo lo pone el script de capturas del README) sustituye los datos.
+function demo(cmd, args) {
+  const d = window.__DEMO__;
+  if (d?.[cmd]) return Promise.resolve(typeof d[cmd] === "function" ? d[cmd](args) : d[cmd]);
   const fam = (nombre, categoria, origen, activa) => ({
     nombre, categoria, origen, activa, imprescindible: ["Arial", "Segoe UI", "Consolas"].includes(nombre),
     estilos: [{ nombre: "Regular", peso: 400, cursiva: false, archivo: nombre, familia_win: nombre, completo: nombre }],
     archivo: nombre, archivos: [nombre], error: null,
   });
-  const lista = [
+  const lista = d?.fuentes ?? [
     fam("Segoe UI", "sans", "sis", true), fam("Arial", "sans", "sis", true), fam("Georgia", "serif", "sis", true),
     fam("Consolas", "mono", "sis", true), fam("Comic Sans MS", "script", "sis", true), fam("Impact", "display", "sis", true),
     fam("Courier New", "mono", "sis", true), fam("Times New Roman", "serif", "sis", true), fam("Gochi Hand", "script", "usu", true),

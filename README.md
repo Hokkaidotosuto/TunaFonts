@@ -54,8 +54,10 @@ Close the window and tuna-fonts stays next to the clock, so fonts from your watc
 | **Grid** — an "Aa" card for each family | **Specimen** — sizes, alphabet, numbers and every character |
 | <img src="docs/compare.png" alt="Three fonts compared one under another"> | <img src="docs/discover.png" alt="Google Fonts catalog with an install button for each family"> |
 | **Compare** — 2 to 4 fonts with the same text | **Discover** — Google Fonts, sorted by popularity, newest or A–Z |
-| <img src="docs/selection.png" alt="Five fonts selected and the menu to add them to a collection"> | <img src="docs/settings.png" alt="Settings window"> |
-| **Selection bar** — activate, favorite, collect or compare many at once | **Settings** — theme, where to install, system fonts, language |
+| <img src="docs/opentype-filter.png" alt="The OpenType features group in the sidebar, filtering the fonts that have true small caps"> | <img src="docs/specimen-info.png" alt="Lower part of a font's page: its styles, the scripts it covers, its OpenType features with an example, and the designer, version and license"> |
+| **OpenType filters** — small caps, oldstyle figures, ligatures… | **Font info** — scripts, OpenType features, designer and license |
+| <img src="docs/selection.png" alt="Five fonts selected, the selection bar at the bottom and the right-click menu open"> | <img src="docs/settings.png" alt="Settings window"> |
+| **Selection bar and right-click menu** — activate, favorite, collect, categorize or uninstall many at once | **Settings** — theme, where to install, system fonts, language, copy of your library |
 
 ## System fonts, safely
 

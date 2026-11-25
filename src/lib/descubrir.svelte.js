@@ -16,7 +16,10 @@ export const descubrir = $state({
 let pedido = null;
 export function cargarCatalogo(forzar = false) {
   if (pedido && !forzar) return pedido;
-  if (!enTauri) return Promise.resolve();
+  if (!enTauri) {
+    if (window.__DEMO__?.google) descubrir.lista = window.__DEMO__.google;
+    return Promise.resolve();
+  }
   descubrir.cargando = true;
   descubrir.error = "";
   pedido = import("@tauri-apps/api/core")

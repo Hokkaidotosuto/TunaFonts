@@ -14,7 +14,7 @@
 <div class="fila" class:sel onclick={onsel} ondblclick={onabrir} onpointerdown={onarrastre} oncontextmenu={oncontexto} data-familia={f.nombre}>
   <Interruptor activa={f.activa} {bloqueada} titulo={bloqueada ? motivo : f.activa ? t("deactivate") : t("activate")} onclick={onalternar} />
   <div class="txt">
-    <span class="nombre">{f.nombre}{#if f.estilos.length > 1}<span class="n"> · {f.estilos.length} {t("estilos")}</span>{/if}{#if f.duplicados?.length}<span class="dup" title={t("dup.pista")}> · {t("dup.corto")}</span>{/if}{#if f.error}<span class="roto"> · {t("err.ilegible")}</span>{/if}</span>
+    <span class="nombre">{f.nombre}{#if f.estilos.length > 1}<span class="n">{" · " + f.estilos.length + " " + t("estilos")}</span>{/if}{#if f.duplicados?.length}<span class="dup" title={t("dup.pista")}> · {t("dup.corto")}</span>{/if}{#if f.error}<span class="roto"> · {t("err.ilegible")}</span>{/if}</span>
     <span
       class="muestra"
       class:off={!on}

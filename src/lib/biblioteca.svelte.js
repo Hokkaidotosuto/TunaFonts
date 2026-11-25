@@ -15,6 +15,8 @@ export async function iniciarBiblioteca() {
   if (store) {
     biblioteca.favoritas = (await store.get("favoritas")) ?? [];
     biblioteca.colecciones = (await store.get("colecciones")) ?? [];
+  } else if (window.__DEMO__?.biblioteca) {
+    Object.assign(biblioteca, window.__DEMO__.biblioteca);
   }
   biblioteca.listo = true;
 }
