@@ -583,13 +583,14 @@
             <button type="button" class="reset" title={t("resetText")} aria-label={t("resetText")} onclick={() => (muestraPropia = "")}><X size={9} strokeWidth={3} /></button>
           {/if}
         </label>
-        <!-- Tamaño de las muestras: las «A» bajan y suben de 2 en 2, la barra se
-             rellena hasta el punto y el número vuelve a 30 con un clic. -->
+        <!-- Tamaño de las muestras, como el deslizador de tamaño del Finder: sin caja,
+             una pista fina y un tirador blanco. Las «A» bajan y suben de 2 en 2, el
+             número sale al tocarlo y doble clic en la pista vuelve a 30. -->
         <div class="tamano">
           <button type="button" class="a pq" title={t("tamano.menos")} aria-label={t("tamano.menos")} onclick={() => pasoTamano(-2)}>A</button>
-          <input class="rango" type="range" min="10" max="96" bind:value={ajustes.tamano} aria-label={t("tamano")} style:--pct="{((tamano - 10) / 86) * 100}%" />
+          <input class="rango" type="range" min="10" max="96" bind:value={ajustes.tamano} aria-label={t("tamano")} title="{tamano} · {t('tamano.volver')}" ondblclick={() => (ajustes.tamano = 30)} style:--pct="{((tamano - 10) / 86) * 100}%" />
           <button type="button" class="a gr" title={t("tamano.mas")} aria-label={t("tamano.mas")} onclick={() => pasoTamano(2)}>A</button>
-          <button type="button" class="num n" class:cambiado={tamano !== 30} title={t("tamano.volver")} onclick={() => (ajustes.tamano = 30)}>{tamano}</button>
+          <span class="num n">{tamano}</span>
         </div>
       {/if}
       <div class="hueco" data-tauri-drag-region></div>
@@ -820,21 +821,21 @@
   .campo input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: 500 var(--fs-small) var(--sans); color: var(--ink); }
   .a { font: 700 var(--fs-small) var(--sans); color: var(--ink3); }
   .reset { width: 16px; height: 16px; border: 0; border-radius: 50%; background: var(--line2); color: var(--win); padding: 0; display: flex; align-items: center; justify-content: center; flex: none; }
-  /* Una pastilla como el buscador: A pequeña, barra rellena, A grande y el número. */
-  .tamano { flex: none; display: flex; align-items: center; gap: 2px; height: 30px; margin-left: 8px; padding: 0 4px 0 2px; border-radius: 999px; background: var(--field); box-shadow: 0 0 0 1px var(--line2); }
-  .tamano button { height: 24px; border: 0; border-radius: 999px; background: transparent; color: var(--ink2); display: flex; align-items: center; justify-content: center; transition: background-color 0.15s, color 0.15s; }
-  .tamano button:hover { background: var(--hov); color: var(--ink); }
-  .tamano .pq { width: 24px; font: 600 var(--fs-meta) var(--sans); }
-  .tamano .gr { width: 26px; font: 600 var(--fs-lead) var(--sans); }
-  .tamano .n { min-width: 30px; padding: 0 6px; font-size: var(--fs-small); color: var(--ink3); }
-  .tamano .n.cambiado { color: var(--ink); }
-  .rango { -webkit-appearance: none; appearance: none; width: 96px; height: 4px; margin: 0 6px; border-radius: 999px; outline: none; cursor: pointer;
-    background: linear-gradient(to right, var(--ink) var(--pct), var(--line2) var(--pct)); }
-  .rango::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--win); border: 0;
-    box-shadow: 0 0 0 1.5px var(--ink), 0 1px 4px rgba(0, 0, 0, 0.18); cursor: grab; transition: transform 0.15s; }
-  .rango:hover::-webkit-slider-thumb { transform: scale(1.15); }
-  .rango:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.2); }
-  .rango:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 1.5px var(--ink), 0 0 0 5px var(--hov); }
+  /* Como el deslizador de tamaño del Finder: sin caja, pista fina, tirador blanco con sombra. */
+  .tamano { flex: none; display: flex; align-items: center; gap: 6px; height: 30px; margin-left: 10px; }
+  .tamano button { padding: 0 2px; border: 0; background: none; color: var(--ink3); line-height: 1; transition: color 0.15s; }
+  .tamano button:hover { color: var(--ink); }
+  .tamano .pq { font: 600 var(--fs-meta) var(--sans); }
+  .tamano .gr { font: 600 var(--fs-lead) var(--sans); }
+  /* El número solo se ve mientras se toca el deslizador. */
+  .tamano .n { width: 20px; font-size: var(--fs-small); color: var(--ink3); opacity: 0; transition: opacity 0.2s; }
+  .tamano:hover .n, .tamano:focus-within .n { opacity: 1; }
+  .rango { -webkit-appearance: none; appearance: none; width: 104px; height: 3px; margin: 0 2px; border-radius: 999px; outline: none; cursor: pointer;
+    background: linear-gradient(to right, var(--ink3) var(--pct), var(--line2) var(--pct)); }
+  .rango::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 0;
+    box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.22); transition: transform 0.15s; }
+  .rango:active::-webkit-slider-thumb { transform: scale(1.08); }
+  .rango:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.14), 0 0 0 4px var(--hov); }
   .vista { margin-right: 12px; display: flex; }
 
   .titulo { flex: none; display: flex; align-items: center; gap: 8px; padding: 10px 24px 8px; min-height: 46px; }
