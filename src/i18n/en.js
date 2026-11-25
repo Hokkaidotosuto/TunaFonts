@@ -340,4 +340,7 @@ export default {
   "ok.importada": "{c} new collections and {f} favorites imported.",
   "ok.importadaTexto": "collections with the same name were merged; nothing was deleted.",
   "err.importar": "that file isn't a tuna-fonts copy.",
+  "tamano.menos": "smaller",
+  "tamano.mas": "bigger",
+  "tamano.volver": "back to 30",
 };

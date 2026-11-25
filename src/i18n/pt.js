@@ -329,4 +329,7 @@ export default {
   "ok.importada": "{c} coleções novas e {f} favoritas importadas.",
   "ok.importadaTexto": "coleções com o mesmo nome foram juntadas; nada foi apagado.",
   "err.importar": "esse arquivo não é uma cópia do tuna-fonts.",
+  "tamano.menos": "menor",
+  "tamano.mas": "maior",
+  "tamano.volver": "voltar para 30",
 };

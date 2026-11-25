@@ -345,4 +345,7 @@ export default {
   "ok.importada": "已导入 {c} 个新合集和 {f} 个收藏。",
   "ok.importadaTexto": "同名合集已合并，没有删除任何内容。",
   "err.importar": "该文件不是 tuna-fonts 备份。",
+  "tamano.menos": "缩小",
+  "tamano.mas": "放大",
+  "tamano.volver": "恢复为 30",
 };

@@ -77,9 +77,19 @@ $effect.root(() => {
       primera = false;
       return;
     }
+    // Fundido de toda la ventana (View Transitions): la foto del tema viejo se
+    // desvanece sobre el nuevo. Dentro, los elementos cambian de color de golpe
+    // (cambiando-tema), así no hay mezclas raras ni miles de transiciones a la vez.
     html.classList.add("cambiando-tema");
-    html.dataset.theme = tema;
-    requestAnimationFrame(() => requestAnimationFrame(() => html.classList.remove("cambiando-tema")));
+    const quitar = () => requestAnimationFrame(() => requestAnimationFrame(() => html.classList.remove("cambiando-tema")));
+    if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.startViewTransition(() => {
+        html.dataset.theme = tema;
+      }).finished.finally(quitar);
+    } else {
+      html.dataset.theme = tema;
+      quitar();
+    }
   });
   // Cada ajuste que cambia se guarda; el plugin agrupa las escrituras seguidas.
   for (const clave of Object.keys(POR_DEFECTO)) {
