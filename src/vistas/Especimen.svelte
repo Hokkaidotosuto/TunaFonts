@@ -67,6 +67,17 @@
         ],
   );
 
+  // Mientras se baja con la rueda, sin efectos al pasar el ratón: las casillas
+  // pasan por debajo del cursor y cada una lanzaba su animación (tirones).
+  const pistaCopiar = $derived(t("copiar"));
+  let rodando = $state(false);
+  let relojRueda;
+  function alRodar() {
+    rodando = true;
+    clearTimeout(relojRueda);
+    relojRueda = setTimeout(() => (rodando = false), 160);
+  }
+
   let glifos = $state([]);
   $effect(() => {
     const ruta = f.archivo;
@@ -92,7 +103,7 @@
 
 </script>
 
-<div class="esp">
+<div class="esp" class:rodando onscroll={alRodar}>
   <button type="button" class="volver" onclick={onvolver}><ChevronLeft size={13} strokeWidth={2.2} />{volver}</button>
 
   <div class="cab">
@@ -131,9 +142,12 @@
   {#if glifos.length}
     <div class="bloque">
       <span class="etiqueta">{t("allChars")} · {glifos.length}</span>
-      <div class="glifos">
+      <!-- La fuente va en el contenedor (las casillas la heredan) y un solo clic
+           para todas: con 1.000+ caracteres, mucho menos trabajo al pintar. -->
+      <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+      <div class="glifos" style:font-family={e.familia} style:font-weight={e.peso} style:font-style={e.cursiva ? "italic" : "normal"} onclick={(ev) => { const g = ev.target.closest(".glifo"); if (g) copiar(g.textContent); }}>
         {#each glifos as c, i (i)}
-          <button type="button" class="glifo" title={t("copiar") + " U+" + c.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")} style:font-family={e.familia} style:font-weight={e.peso} style:font-style={e.cursiva ? "italic" : "normal"} onclick={() => copiar(c)}>{c}</button>
+          <button type="button" class="glifo" title={pistaCopiar + " U+" + c.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")}>{c}</button>
         {/each}
       </div>
     </div>
@@ -264,13 +278,14 @@
     border-radius: 8px;
     background: var(--chip);
     color: var(--ink);
+    font: inherit;
     font-size: 26px;
     line-height: 1;
-    content-visibility: auto;
-    contain-intrinsic-size: 52px 56px;
     transition: background-color 0.12s, color 0.12s, transform 0.12s;
   }
   .glifo:hover { background: var(--ink); color: var(--win); transform: scale(1.06); }
+  .rodando .glifos { pointer-events: none; }
+  .rodando .glifo { transition: none; }
   .estilo { display: flex; flex-direction: column; gap: 1px; padding: 6px 0; }
   .estilo .n { font-size: var(--fs-meta); color: var(--ink3); }
   .aviso-dup { padding: 12px 14px; border-radius: 12px; background: var(--chip); align-items: flex-start; }
