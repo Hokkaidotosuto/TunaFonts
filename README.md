@@ -7,7 +7,7 @@
 **A font manager for Windows 10 and 11.**
 Your fonts, tidy and at hand. No accounts, no ads, nothing sent anywhere.
 
-[English](#what-it-does) · [Español](#en-español)
+[Website](https://atunfrito.es/tuna-fonts/) · [English](#what-it-does) · [Español](#en-español)
 
 </div>
 
@@ -154,6 +154,8 @@ Want tuna-fonts in your language? [Open an issue](https://github.com/atunfrito/t
 ## En español
 
 **Gestor de fuentes para Windows 10 y 11.** Tus fuentes, ordenadas y a mano. Sin cuentas, sin anuncios y sin enviar nada a ningún sitio.
+
+Web: [atunfrito.es/tuna-fonts](https://atunfrito.es/tuna-fonts/es/)
 
 - **Todas tus fuentes**, agrupadas por familia, en lista o cuadrícula, con tu propio texto de prueba y al tamaño que quieras.
 - **Activar y desactivar sin borrar.** Una fuente desactivada deja de salir en tus programas, pero se queda guardada en tuna-fonts y vuelve con un clic. Mayús+clic selecciona un tramo entero.
