@@ -80,6 +80,7 @@
     { etiqueta: t("aj.ver"), pista: t("aj.verHint"), valor: ajustes.verBloqueadas, elegir: (v) => (ajustes.verBloqueadas = v), opciones: [[false, t("aj.ocultas")], [true, t("aj.visibles")]] },
     { etiqueta: t("aj.carpetas"), pista: t("aj.carpetasHint"), valor: ajustes.carpetasApagadas, elegir: (v) => { ajustes.carpetasApagadas = v; llamar("poner_carpetas_apagadas", { valor: v }).then(ponerLista).catch(() => {}); }, opciones: [[false, t("aj.activadas")], [true, t("aj.desactivadas")]] },
     { etiqueta: t("aj.buscarAct"), pista: t("aj.buscarActHint"), valor: ajustes.buscarActualizaciones, elegir: (v) => (ajustes.buscarActualizaciones = v), opciones: [[true, t("aj.si")], [false, t("aj.no")]] },
+    { etiqueta: t("aj.escala"), pista: t("aj.escalaHint"), valor: ajustes.escala, elegir: (v) => (ajustes.escala = v), opciones: [[0.9, "90%"], [1, "100%"], [1.1, "110%"], [1.25, "125%"]] },
     { etiqueta: t("aj.idioma"), pista: "", valor: ajustes.idioma, elegir: ponerIdioma, opciones: [["es", "español"], ["en", "english"], ["zh", "中文"], ["pt", "português"]] },
   ]);
 

@@ -33,6 +33,8 @@ const POR_DEFECTO = {
   // Una consulta a GitHub al abrir para ver si hay versión nueva (desactivable).
   buscarActualizaciones: true,
   carpetasApagadas: false,
+  // Zoom de toda la interfaz (1 = 100 %).
+  escala: 1,
   // familia -> categoría elegida a mano (gana a la automática).
   categorias: {},
   // Texto de prueba por defecto ("" = el de siempre del idioma).
@@ -90,6 +92,12 @@ $effect.root(() => {
       html.dataset.theme = tema;
       quitar();
     }
+  });
+  // Escala de la interfaz: el zoom de la ventana, como Ctrl + en un navegador.
+  $effect(() => {
+    const z = ajustes.escala || 1;
+    if (!enTauri) return;
+    import("@tauri-apps/api/webview").then(({ getCurrentWebview }) => getCurrentWebview().setZoom(z)).catch(() => {});
   });
   // Cada ajuste que cambia se guarda; el plugin agrupa las escrituras seguidas.
   for (const clave of Object.keys(POR_DEFECTO)) {

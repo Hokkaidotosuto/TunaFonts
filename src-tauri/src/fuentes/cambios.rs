@@ -32,6 +32,10 @@ pub struct Resultado {
     pub cancelado: bool,
     /// Familias instaladas (para el aviso).
     pub instaladas: Vec<String>,
+    /// Desinstaladas que no pudieron ir a la papelera y se guardaron en la carpeta de la app.
+    pub apartadas: usize,
+    /// Esa carpeta, para decírsela al usuario.
+    pub carpeta_apartadas: Option<String>,
 }
 
 fn nombre_archivo(r: &Path) -> String {
@@ -254,7 +258,13 @@ pub fn desinstalar(ent: &Entorno, entradas: &[Entrada], cache: &Cache, familias:
             continue;
         }
         match desinstalar_una(ent, e) {
-            Ok(()) => r.cambiadas += 1,
+            Ok(apartada) => {
+                r.cambiadas += 1;
+                if apartada {
+                    r.apartadas += 1;
+                    r.carpeta_apartadas = Some(ent.apartadas().to_string_lossy().into_owned());
+                }
+            }
             Err(err) => r.errores.push(format!("{nombre}: {err}")),
         }
     }
@@ -264,16 +274,25 @@ pub fn desinstalar(ent: &Entorno, entradas: &[Entrada], cache: &Cache, familias:
     r
 }
 
-fn desinstalar_una(ent: &Entorno, e: &Entrada) -> Result<(), String> {
+/// Devuelve si el archivo acabó en la carpeta de la app en vez de en la papelera.
+fn desinstalar_una(ent: &Entorno, e: &Entrada) -> Result<bool, String> {
     if e.activa && ent.tocar_windows {
         win::descargar(&e.ruta, false);
     }
+    let mut apartada = false;
     let papelera = if ent.tocar_windows { win::a_papelera(&e.ruta) } else { fs::remove_file(&e.ruta).map_err(en_uso) };
     if let Err(err) = papelera {
-        if e.activa && ent.tocar_windows {
-            win::cargar(&e.ruta, false);
+        // Hay rutas que la papelera no acepta (en algún PC da el 124, «ruta no
+        // válida»). Antes que dejarla instalada, se mueve a una carpeta de la
+        // app, de donde se puede recuperar igual que de la papelera.
+        let _ = fs::create_dir_all(ent.apartadas());
+        if mover(&e.ruta, &libre(&ent.apartadas(), &nombre_archivo(&e.ruta))).is_err() {
+            if e.activa && ent.tocar_windows {
+                win::cargar(&e.ruta, false);
+            }
+            return Err(err);
         }
-        return Err(err);
+        apartada = true;
     }
     if e.activa {
         if let Some((valor, _)) = &e.valor {
@@ -287,7 +306,7 @@ fn desinstalar_una(ent: &Entorno, e: &Entrada) -> Result<(), String> {
             poner_guardadas(ent, &g)?;
         }
     }
-    Ok(())
+    Ok(apartada)
 }
 
 fn respaldo_de(ent: &Entorno, e: &Entrada) -> bool {

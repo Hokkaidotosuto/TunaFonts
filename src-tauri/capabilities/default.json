@@ -12,6 +12,7 @@
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",
     "core:window:allow-set-background-color",
+    "core:webview:allow-set-webview-zoom",
     "store:default",
     "updater:default",
     "process:allow-restart"

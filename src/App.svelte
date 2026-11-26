@@ -59,6 +59,7 @@
     if (!r) return;
     if (r.cambiadas) avisar("ok", t("ok.desinstaladas", { n: r.cambiadas }), t("ok.desinstaladasTexto"));
     if (r.bloqueadas) avisar("warn", t("aviso.noDesinstalables", { n: r.bloqueadas }), t("aviso.noDesinstalablesTexto"));
+    if (r.apartadas) avisar("warn", t("aviso.apartadas", { n: r.apartadas }), t("aviso.apartadasTexto", { c: r.carpeta_apartadas ?? "" }));
   }
   const CATS = ["sans", "serif", "script", "display", "mono", "otros"];
   const opcionesMenu = $derived.by(() => {

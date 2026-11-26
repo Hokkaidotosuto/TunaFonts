@@ -79,6 +79,10 @@ impl Entorno {
     pub fn desactivadas(&self) -> PathBuf {
         self.datos.join("desactivadas")
     }
+    /// Desinstaladas que Windows no dejó mandar a la papelera: se guardan aquí.
+    pub fn apartadas(&self) -> PathBuf {
+        self.datos.join("desinstaladas")
+    }
     pub fn respaldo(&self) -> PathBuf {
         self.datos.join("respaldo-sistema")
     }
