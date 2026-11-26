@@ -436,6 +436,16 @@
         } else if (payload === "ajustes") ajustesEn = "ajustes";
       });
     });
+    // Si se instala o se quita una fuente con otro programa, al volver a la
+    // ventana se nota (como mucho una vez cada 5 s; si no ha cambiado nada, no
+    // relee ningún archivo).
+    let ultimaVuelta = Date.now();
+    const alVolver = () => {
+      if (fuentes.ocupado || Date.now() - ultimaVuelta < 5000) return;
+      ultimaVuelta = Date.now();
+      actualizarFuentes();
+    };
+    window.addEventListener("focus", alVolver);
     let quitar;
     import("@tauri-apps/api/webview").then(async ({ getCurrentWebview }) => {
       // Archivos arrastrados desde fuera (el explorador). Lo de dentro de la
@@ -456,6 +466,7 @@
       });
     });
     return () => {
+      window.removeEventListener("focus", alVolver);
       quitar?.();
       quitarBandeja?.();
     };

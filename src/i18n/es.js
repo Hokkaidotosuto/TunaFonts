@@ -49,6 +49,10 @@ export default {
   "nov.26": "instala arrastrando un .zip: saca las fuentes de dentro (también de subcarpetas)",
   "nov.27": "la ficha dice qué alfabetos cubre la fuente y avisa de estilos duplicados",
   "nov.28": "exporta una colección suelta para pasársela a alguien",
+  "nov.29": "si windows no deja mandar una fuente a la papelera, se desinstala igual y el archivo se guarda en la carpeta de tuna-fonts",
+  "nov.30": "nuevo en ajustes: tamaño de la interfaz, del 90 al 125 %",
+  "nov.31": "los avisos de error salen en el idioma de la app",
+  "nov.32": "se notan las fuentes que instalas o quitas con otros programas, sin reabrir la app",
   "nov.11": "la app ya habla chino simplificado y portugués de brasil, traducidos por gente que la usa",
   "nov.12": "mayús+clic selecciona todas las fuentes entre la última que marcaste y esta",
   "nov.13": "las fuentes desactivadas se leen mejor, sin dejar de verse apagadas",
@@ -387,4 +391,5 @@ export default {
   "errR.leer": "no se ha podido leer",
   "errR.admin": "no se ha podido terminar con permisos de administrador",
   "errR.web": "solo se abren direcciones web",
+  "categoria.aMano": "puesta a mano",
 };

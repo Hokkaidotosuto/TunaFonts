@@ -48,6 +48,10 @@ export default {
   "nov.26": "arraste um .zip para instalar as fontes de dentro (também de subpastas)",
   "nov.27": "a página da fonte mostra os alfabetos que ela cobre e avisa de estilos duplicados",
   "nov.28": "exporte uma coleção avulsa para compartilhar",
+  "nov.29": "se o windows não deixar mandar uma fonte para a lixeira, ela é desinstalada mesmo assim e o arquivo fica na pasta do tuna-fonts",
+  "nov.30": "novo nas configurações: tamanho da interface, de 90 a 125%",
+  "nov.31": "as mensagens de erro seguem o idioma do app",
+  "nov.32": "fontes que você instala ou remove com outros programas aparecem sem reabrir o app",
   "nov.11": "o app agora fala chinês simplificado e português do brasil, traduzidos por quem usa",
   "nov.12": "shift+clique seleciona todas as fontes entre a última que você marcou e esta",
   "nov.13": "fontes desativadas ficam mais legíveis, sem deixar de parecer desligadas",
@@ -375,4 +379,5 @@ export default {
   "errR.leer": "não foi possível ler",
   "errR.admin": "não foi possível concluir com permissão de administrador",
   "errR.web": "só endereços da web podem ser abertos",
+  "categoria.aMano": "definida à mão",
 };

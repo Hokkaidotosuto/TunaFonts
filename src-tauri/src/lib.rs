@@ -672,6 +672,15 @@ pub fn run() {
             let datos = app.path().app_data_dir()?;
             // Con Windows (--oculta) se queda en la bandeja; tras actualizarse, no.
             let oculta = inicio::arrancar_oculta(&datos);
+            // Primera vez con esta versión (recién instalada o actualizada): que el
+            // Explorador refresque el icono de la barra de tareas.
+            let version = app.package_info().version.to_string();
+            let marca = datos.join("version.txt");
+            if fs::read_to_string(&marca).ok().as_deref() != Some(version.as_str()) {
+                win::refrescar_iconos();
+                let _ = fs::create_dir_all(&datos);
+                let _ = fs::write(&marca, &version);
+            }
             let ent = Entorno::real(datos.clone());
             let cache = Cache::cargar(&datos.join("fonts-cache.json"));
             let carpetas: Vec<PathBuf> = fs::read(datos.join("carpetas.json"))

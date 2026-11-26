@@ -48,6 +48,10 @@ export default {
   "nov.26": "drop a .zip to install the fonts inside it (subfolders too)",
   "nov.27": "a font's page shows which scripts it covers and warns about duplicate styles",
   "nov.28": "export a single collection to share it with someone",
+  "nov.29": "if windows won't send a font to the recycle bin, it's uninstalled anyway and the file is kept in tuna-fonts' folder",
+  "nov.30": "new in settings: interface size, from 90 to 125%",
+  "nov.31": "error messages follow the app language",
+  "nov.32": "fonts you install or remove with other programs show up without reopening the app",
   "nov.11": "the app now speaks simplified chinese and brazilian portuguese, translated by people who use it",
   "nov.12": "shift+click selects every font between the last one you picked and this one",
   "nov.13": "deactivated fonts are easier to read, while still looking switched off",
@@ -386,4 +390,5 @@ export default {
   "errR.leer": "couldn't read it",
   "errR.admin": "couldn't finish with admin rights",
   "errR.web": "only web addresses can be opened",
+  "categoria.aMano": "set by hand",
 };

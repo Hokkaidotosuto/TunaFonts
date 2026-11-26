@@ -146,6 +146,15 @@ pub fn descargar(ruta: &Path, privada: bool) {
     }
 }
 
+/// Pide al Explorador que vuelva a leer los iconos. Tras actualizar, el .exe es
+/// otro pero Windows seguía enseñando en la barra de tareas el icono que tenía en
+/// caché hasta que se cerraba y se volvía a abrir la app.
+pub fn refrescar_iconos() {
+    use windows_sys::Win32::UI::Shell::{SHChangeNotify, SHCNE_ASSOCCHANGED, SHCNF_IDLIST};
+    // SAFETY: sin punteros; solo avisa al shell.
+    unsafe { SHChangeNotify(SHCNE_ASSOCCHANGED as i32, SHCNF_IDLIST, std::ptr::null(), std::ptr::null()) };
+}
+
 /// WM_FONTCHANGE a todas las ventanas. Con tiempo límite: un programa colgado
 /// no deja colgada a tuna-fonts.
 pub fn avisar_cambio() {

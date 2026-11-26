@@ -53,7 +53,10 @@
     ].filter(Boolean),
   );
   const otros = $derived(f.categoria === "otros");
-  const meta = $derived(`${f.estilos.length} ${f.estilos.length === 1 ? t("estilo") : t("estilos")} · ${t("origen." + f.origen)}`);
+  const meta = $derived(
+    `${f.estilos.length} ${f.estilos.length === 1 ? t("estilo") : t("estilos")} · ${t("origen." + f.origen)} · ${t("cat." + f.categoria)}` +
+      (f.categoriaAuto ? ` (${t("categoria.aMano")})` : ""),
+  );
   const juegos = $derived(
     otros
       ? [{ titulo: t("muestra.titulo"), chars: muestra }, { titulo: t("numeros.solo"), chars: "0123456789" }]
