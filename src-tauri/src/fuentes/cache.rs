@@ -24,8 +24,8 @@ pub struct Cache {
     pub familias: Vec<Familia>,
 }
 
-// 3: las caras guardan sus funciones OpenType (rasgos).
-const VERSION: u32 = 3;
+// 4: las caras dicen si traen ideogramas (cjk).
+const VERSION: u32 = 4;
 
 fn sello(ruta: &Path) -> Option<(u64, u64)> {
     let m = fs::metadata(ruta).ok()?;
