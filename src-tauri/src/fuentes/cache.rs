@@ -24,7 +24,7 @@ pub struct Cache {
     pub familias: Vec<Familia>,
 }
 
-// 4: las caras dicen si traen ideogramas (cjk).
+// 4: las caras dicen si cubren la muestra china (cjk).
 const VERSION: u32 = 4;
 
 fn sello(ruta: &Path) -> Option<(u64, u64)> {
