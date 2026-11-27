@@ -31,6 +31,11 @@ pub struct Cara {
     /// Funciones OpenType que interesan para filtrar (smcp, onum, liga…).
     #[serde(default)]
     pub rasgos: Vec<String>,
+    /// Trae ideogramas (chino, japonés, coreano). Si no los trae, la muestra
+    /// del idioma saldría entera con la fuente de reserva y no con la suya,
+    /// así que la vista previa tiene que enseñar otra cosa.
+    #[serde(default)]
+    pub cjk: bool,
 }
 
 /// Las funciones OpenType (tabla GSUB) por las que se puede filtrar. Los
@@ -160,15 +165,32 @@ fn sin_extension(ruta: &Path) -> String {
     ruta.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default()
 }
 
+/// Tres ideogramas que comparten el chino, el japonés y el coreano. Si están
+/// los tres, la muestra del idioma se puede escribir con la fuente.
+const PRUEBA_CJK: [char; 3] = ['中', '文', '字'];
+
+/// ¿Trae ideogramas? Se pregunta a la tabla cmap, que es la que sabe de verdad
+/// qué caracteres tiene la fuente (las banderas de OS/2 mienten a menudo).
+fn trae_ideogramas(cmap: Option<&[u8]>) -> bool {
+    let Some(cmap) = cmap.and_then(ttf_parser::cmap::Table::parse) else { return false };
+    for sub in cmap.subtables {
+        if sub.is_unicode() && PRUEBA_CJK.iter().all(|c| sub.glyph_index(u32::from(*c)).is_some()) {
+            return true;
+        }
+    }
+    false
+}
+
 /// Todas las caras de un archivo, con su categoría.
 pub fn caras(ruta: &Path) -> Result<Vec<Cara>, String> {
     let mut f = File::open(ruta).map_err(|e| e.to_string())?;
     let mut fuera = Vec::new();
     for inicio in inicios(&mut f)? {
-        let t = tablas(&mut f, inicio, &[b"name", b"OS/2", b"GSUB"])?;
+        let t = tablas(&mut f, inicio, &[b"name", b"OS/2", b"GSUB", b"cmap"])?;
         let name = t[0].as_deref().and_then(ttf_parser::name::Table::parse).ok_or("sin tabla name")?;
         let os2 = t[1].as_deref();
         let rasgos = rasgos_gsub(t[2].as_deref());
+        let cjk = trae_ideogramas(t[3].as_deref());
 
         let familia_win = nombre(&name, 1).unwrap_or_else(|| sin_extension(ruta));
         let familia = nombre(&name, 16).unwrap_or_else(|| familia_win.clone());
@@ -192,7 +214,7 @@ pub fn caras(ruta: &Path) -> Result<Vec<Cara>, String> {
                 d.codepages = be32(o, 78);
             }
         }
-        fuera.push(Cara { familia, familia_win, estilo, completo, peso, cursiva, categoria: categoria::clasificar(&d).into(), rasgos: rasgos.clone() });
+        fuera.push(Cara { familia, familia_win, estilo, completo, peso, cursiva, categoria: categoria::clasificar(&d).into(), rasgos: rasgos.clone(), cjk });
     }
     if fuera.is_empty() {
         return Err("el archivo no trae ninguna fuente".into());
@@ -231,4 +253,28 @@ pub fn caracteres(ruta: &Path, tope: usize) -> Result<Vec<u32>, String> {
         }
     }
     Ok(set.into_iter().take(tope).collect())
+}
+
+#[cfg(test)]
+mod pruebas {
+    use super::*;
+
+    /// Gochi Hand, la que usa el repo para probar, solo trae alfabeto latino.
+    #[test]
+    fn una_fuente_latina_no_trae_ideogramas() {
+        let ruta = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/GochiHand-Regular.ttf");
+        let cs = caras(&ruta).unwrap();
+        assert!(!cs.iter().any(|c| c.cjk), "Gochi Hand no debería traer ideogramas");
+    }
+
+    /// Una fuente china sí los trae. Se salta si este Windows no la tiene.
+    #[test]
+    fn una_fuente_china_trae_ideogramas() {
+        let ruta = Path::new(r"C:\Windows\Fonts\msyh.ttc");
+        if !ruta.is_file() {
+            return;
+        }
+        let cs = caras(ruta).unwrap();
+        assert!(cs.iter().any(|c| c.cjk), "Microsoft YaHei debería traer ideogramas");
+    }
 }
