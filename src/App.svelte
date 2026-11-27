@@ -100,6 +100,11 @@
 
   const muestraDefecto = $derived(ajustes.textoPrueba.trim() || t("defaultSample"));
   const muestra = $derived(muestraPropia || muestraDefecto);
+  // La de las fuentes que no traen ideogramas: con el texto del idioma, esas
+  // se pintarían enteras con la fuente de reserva y dos familias distintas
+  // saldrían iguales. Lo que escriba el usuario se respeta siempre.
+  const muestraLatin = $derived(t("defaultSampleLatin"));
+  const muestraDe = (f) => muestraPropia || (f.cjk ? muestraDefecto : muestraLatin);
   const tamano = $derived(ajustes.tamano);
   const pasoTamano = (d) => (ajustes.tamano = Math.min(96, Math.max(10, Math.round(ajustes.tamano) + d)));
 
@@ -108,6 +113,9 @@
   const carpeta = $derived(seccion.startsWith("car:") ? seccion.slice(4) : null);
   const detalleF = $derived(detalle ? fuentes.lista.find((f) => f.nombre === detalle) : null);
   const comparadas = $derived(comparar.map((n) => fuentes.lista.find((f) => f.nombre === n)).filter(Boolean));
+  // En el comparador la muestra es una sola para todas: si ninguna trae
+  // ideogramas, se usa la latina.
+  const muestraComparar = $derived(comparadas.length && comparadas.every((f) => !f.cjk) ? muestraLatin : muestra);
 
   const bloqueada = (f) => f.origen === "sis" && (!ajustes.desbloqueadas || f.imprescindible);
   const motivo = (f) => (f.imprescindible ? t("candado.imprescindible") : t("candado.sistema"));
@@ -479,7 +487,7 @@
   <Fila
     {f}
     estilo={estiloDe(f)}
-    {muestra}
+    muestra={muestraDe(f)}
     {tamano}
     sel={sel.has(f.nombre)}
     fav={favs.has(f.nombre)}
@@ -685,7 +693,7 @@
     {:else if detalleF}
       <Especimen
         f={detalleF}
-        {muestra}
+        muestra={muestraDe(detalleF)}
         fav={favs.has(detalleF.nombre)}
         bloqueada={bloqueada(detalleF)}
         volver={seccion === "favoritas" ? t("favorites") : coleccion ? coleccion.nombre : t("sec.instaladas")}
@@ -696,7 +704,7 @@
     {:else if comparadas.length}
       <Comparar
         familias={comparadas}
-        {muestra}
+        muestra={muestraComparar}
         {tamano}
         onvolver={() => (comparar = [])}
         onquitar={(n) => (comparar = comparar.length <= 2 ? [] : comparar.filter((x) => x !== n))}
