@@ -322,6 +322,9 @@ pub struct Familia {
     /// Archivos que repiten un estilo que ya está en otro archivo de la familia.
     #[serde(default)]
     pub duplicados: Vec<String>,
+    /// Algún estilo trae ideogramas (ver `leer::trae_ideogramas`).
+    #[serde(default)]
+    pub cjk: bool,
 }
 
 /// Agrupa las entradas ya leídas por familia.
@@ -348,6 +351,7 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         error: Some(err),
                         rasgos: vec![],
                         duplicados: vec![],
+                        cjk: false,
                     },
                 );
             }
@@ -365,6 +369,7 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         error: None,
                         rasgos: vec![],
                         duplicados: vec![],
+                        cjk: false,
                     });
                     for r in &c.rasgos {
                         if !f.rasgos.contains(r) {
@@ -372,6 +377,7 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         }
                     }
                     f.activa |= e.activa;
+                    f.cjk |= c.cjk;
                     if !f.archivos.contains(&archivo) {
                         f.archivos.push(archivo.clone());
                     }
