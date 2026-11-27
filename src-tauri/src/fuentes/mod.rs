@@ -322,7 +322,7 @@ pub struct Familia {
     /// Archivos que repiten un estilo que ya está en otro archivo de la familia.
     #[serde(default)]
     pub duplicados: Vec<String>,
-    /// Algún estilo trae ideogramas (ver `leer::trae_ideogramas`).
+    /// Algún estilo puede escribir la muestra china entera (ver `leer::cubre_muestra`).
     #[serde(default)]
     pub cjk: bool,
 }
