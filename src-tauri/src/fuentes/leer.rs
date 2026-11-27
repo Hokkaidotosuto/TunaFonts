@@ -31,9 +31,9 @@ pub struct Cara {
     /// Funciones OpenType que interesan para filtrar (smcp, onum, liga…).
     #[serde(default)]
     pub rasgos: Vec<String>,
-    /// Trae ideogramas (chino, japonés, coreano). Si no los trae, la muestra
-    /// del idioma saldría entera con la fuente de reserva y no con la suya,
-    /// así que la vista previa tiene que enseñar otra cosa.
+    /// Puede escribir entera la muestra china (ver `cubre_muestra`). Si no,
+    /// la vista previa tiene que enseñar la latina: si no, media fila sale con
+    /// la fuente de reserva.
     #[serde(default)]
     pub cjk: bool,
 }
@@ -165,16 +165,21 @@ fn sin_extension(ruta: &Path) -> String {
     ruta.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default()
 }
 
-/// Tres ideogramas que comparten el chino, el japonés y el coreano. Si están
-/// los tres, la muestra del idioma se puede escribir con la fuente.
-const PRUEBA_CJK: [char; 3] = ['中', '文', '字'];
+/// La muestra por defecto en chino. Tiene que ser la misma que `defaultSample`
+/// de `src/i18n/zh.js` (lo comprueba una prueba).
+const MUESTRA_CJK: &str = "轻快的金枪鱼跃过懒狗";
 
-/// ¿Trae ideogramas? Se pregunta a la tabla cmap, que es la que sabe de verdad
-/// qué caracteres tiene la fuente (las banderas de OS/2 mienten a menudo).
-fn trae_ideogramas(cmap: Option<&[u8]>) -> bool {
+/// ¿Puede escribir la muestra entera? Se pregunta a la tabla cmap, que es la que
+/// sabe de verdad qué caracteres tiene la fuente (las banderas de OS/2 mienten a
+/// menudo).
+///
+/// Se comprueba la frase completa y no tres ideogramas sueltos: un japonés trae
+/// 中 / 文 / 字 pero no 轻 ni 跃, y con esos tres bastaba para colar la muestra
+/// china, así que la fila salía medio con la fuente y medio con la de reserva.
+fn cubre_muestra(cmap: Option<&[u8]>) -> bool {
     let Some(cmap) = cmap.and_then(ttf_parser::cmap::Table::parse) else { return false };
     for sub in cmap.subtables {
-        if sub.is_unicode() && PRUEBA_CJK.iter().all(|c| sub.glyph_index(u32::from(*c)).is_some()) {
+        if sub.is_unicode() && MUESTRA_CJK.chars().all(|c| sub.glyph_index(u32::from(c)).is_some()) {
             return true;
         }
     }
@@ -190,7 +195,7 @@ pub fn caras(ruta: &Path) -> Result<Vec<Cara>, String> {
         let name = t[0].as_deref().and_then(ttf_parser::name::Table::parse).ok_or("sin tabla name")?;
         let os2 = t[1].as_deref();
         let rasgos = rasgos_gsub(t[2].as_deref());
-        let cjk = trae_ideogramas(t[3].as_deref());
+        let cjk = cubre_muestra(t[3].as_deref());
 
         let familia_win = nombre(&name, 1).unwrap_or_else(|| sin_extension(ruta));
         let familia = nombre(&name, 16).unwrap_or_else(|| familia_win.clone());
@@ -264,7 +269,7 @@ mod pruebas {
     fn una_fuente_latina_no_trae_ideogramas() {
         let ruta = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/GochiHand-Regular.ttf");
         let cs = caras(&ruta).unwrap();
-        assert!(!cs.iter().any(|c| c.cjk), "Gochi Hand no debería traer ideogramas");
+        assert!(!cs.iter().any(|c| c.cjk), "Gochi Hand no puede escribir la muestra china");
     }
 
     /// Una fuente china sí los trae. Se salta si este Windows no la tiene.
@@ -275,6 +280,16 @@ mod pruebas {
             return;
         }
         let cs = caras(ruta).unwrap();
-        assert!(cs.iter().any(|c| c.cjk), "Microsoft YaHei debería traer ideogramas");
+        assert!(cs.iter().any(|c| c.cjk), "Microsoft YaHei sí puede escribir la muestra china");
+    }
+
+    /// La muestra de aquí y la de `src/i18n/zh.js` tienen que ser la misma: si
+    /// alguien cambia el texto, salta esta prueba en vez de que la vista previa
+    /// vuelva a partirse entre dos fuentes.
+    #[test]
+    fn la_muestra_coincide_con_la_del_idioma() {
+        let ruta = Path::new(env!("CARGO_MANIFEST_DIR")).join("../src/i18n/zh.js");
+        let Ok(texto) = std::fs::read_to_string(ruta) else { return };
+        assert!(texto.contains(MUESTRA_CJK), "MUESTRA_CJK ya no está en src/i18n/zh.js: {MUESTRA_CJK}");
     }
 }
