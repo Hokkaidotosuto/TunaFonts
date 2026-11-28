@@ -105,6 +105,10 @@
   // saldrían iguales. Lo que escriba el usuario se respeta siempre.
   const muestraLatin = $derived(t("defaultSampleLatin"));
   const muestraDe = (f) => muestraPropia || (f.cjk ? muestraDefecto : muestraLatin);
+  // Las de Google todavía no están bajadas, así que el backend manda `cjk`
+  // mirando los subsets de Google: si no trae ideogramas, se pinta el texto
+  // latino (si no, la fila sale entera con la fuente de reserva).
+  const muestraGoogleDe = (g) => muestraPropia || (g.cjk ? muestraDefecto : muestraLatin);
   const tamano = $derived(ajustes.tamano);
   const pasoTamano = (d) => (ajustes.tamano = Math.min(96, Math.max(10, Math.round(ajustes.tamano) + d)));
 
@@ -216,18 +220,29 @@
 
   // Vistas previas de Descubrir: solo lo que se ve.
   let vistasGoogle = [];
+  // Cada familia pide los caracteres de su muestra: las que traen ideogramas,
+  // la del idioma; las demás, la latina. Si no, a una latina se le piden
+  // ideogramas que no tiene y la fila sale con la fuente de reserva (o en huecos).
+  function pedirVistasGoogle(items) {
+    if (!items.length) return;
+    const conIdeogramas = items.filter((g) => g.cjk).map((g) => g.nombre);
+    const resto = items.filter((g) => !g.cjk).map((g) => g.nombre);
+    if (resto.length) pedirVistas(resto, muestraPropia || muestraLatin);
+    if (conIdeogramas.length) pedirVistas(conIdeogramas, muestraPropia || muestraDefecto);
+  }
   function alVerGoogle(items) {
     vistasGoogle = items;
-    pedirVistas(items.map((g) => g.nombre), muestra);
+    pedirVistasGoogle(items);
   }
   function alVerFav(items) {
     vistasGoogle = items.filter((it) => it.google).map((it) => it.google);
-    if (vistasGoogle.length) pedirVistas(vistasGoogle.map((g) => g.nombre), muestra);
+    pedirVistasGoogle(vistasGoogle);
   }
   $effect(() => {
     // Si cambia el texto de prueba, se pide solo lo que falte de lo que se ve.
+    // (`muestra` se lee aquí a propósito: es la dependencia que dispara el efecto.)
     const m = muestra;
-    if (enDescubrir || seccion === "favoritas") pedirVistas(vistasGoogle.map((g) => g.nombre), m);
+    if (enDescubrir || seccion === "favoritas") pedirVistasGoogle(vistasGoogle);
   });
 
   // ---- acciones ----
@@ -427,7 +442,7 @@
     iniciarBiblioteca();
     iniciarActualizador();
     iniciarFuentes();
-    precargar(muestra);
+    precargar(muestraPropia || muestraLatin, muestraPropia || muestraDefecto);
     if (!enTauri) return;
     llamar("carpetas").then((l) => (carpetas = l));
     // Lo que se pide desde el menú de la bandeja (la ventana ya está a la vista).
@@ -522,7 +537,7 @@
 {#snippet filaGoogle(g)}
   <FilaGoogle
     {g}
-    {muestra}
+    muestra={muestraGoogleDe(g)}
     {tamano}
     instalada={instaladasNombres.has(g.nombre.toLowerCase())}
     pct={descubrir.descargas[g.nombre]}
@@ -537,7 +552,7 @@
   {#if it.google}
     <FilaGoogle
       g={it.google}
-      {muestra}
+      muestra={muestraGoogleDe(it.google)}
       {tamano}
       sinInstalar
       instalada={false}
@@ -681,7 +696,7 @@
     {#if vistaG}
       <VistaGoogle
         g={vistaG}
-        {muestra}
+        muestra={muestraGoogleDe(vistaG)}
         volver={enDescubrir ? t("sec.descubrir") : t("favorites")}
         instalada={instaladasNombres.has(vistaG.nombre.toLowerCase())}
         pct={descubrir.descargas[vistaG.nombre]}
