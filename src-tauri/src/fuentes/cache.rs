@@ -24,8 +24,8 @@ pub struct Cache {
     pub familias: Vec<Familia>,
 }
 
-// 4: las caras dicen si cubren la muestra china (cjk).
-const VERSION: u32 = 4;
+// 5: cada cara dice qué muestra sabe escribir (muestra), no solo si trae ideogramas.
+const VERSION: u32 = 5;
 
 fn sello(ruta: &Path) -> Option<(u64, u64)> {
     let m = fs::metadata(ruta).ok()?;
