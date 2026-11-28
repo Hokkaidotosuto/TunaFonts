@@ -322,9 +322,11 @@ pub struct Familia {
     /// Archivos que repiten un estilo que ya está en otro archivo de la familia.
     #[serde(default)]
     pub duplicados: Vec<String>,
-    /// Algún estilo puede escribir la muestra china entera (ver `leer::cubre_muestra`).
+    /// La muestra que pinta la vista previa: la de la escritura de la fuente, si
+    /// la sabe escribir (ver `leer::muestra`). Vacía en las latinas, que enseñan
+    /// el texto de la interfaz.
     #[serde(default)]
-    pub cjk: bool,
+    pub muestra: String,
 }
 
 /// Agrupa las entradas ya leídas por familia.
@@ -351,7 +353,7 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         error: Some(err),
                         rasgos: vec![],
                         duplicados: vec![],
-                        cjk: false,
+                        muestra: String::new(),
                     },
                 );
             }
@@ -369,7 +371,7 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         error: None,
                         rasgos: vec![],
                         duplicados: vec![],
-                        cjk: false,
+                        muestra: String::new(),
                     });
                     for r in &c.rasgos {
                         if !f.rasgos.contains(r) {
@@ -377,7 +379,9 @@ pub fn agrupar(entradas: &[Entrada], caras: &dyn Fn(&Path) -> Result<Vec<Cara>, 
                         }
                     }
                     f.activa |= e.activa;
-                    f.cjk |= c.cjk;
+                    if f.muestra.is_empty() {
+                        f.muestra = c.muestra.clone();
+                    }
                     if !f.archivos.contains(&archivo) {
                         f.archivos.push(archivo.clone());
                     }
