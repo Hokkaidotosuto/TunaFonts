@@ -10,6 +10,8 @@ use std::{
     time::{Duration, SystemTime},
 };
 
+use crate::fuentes::leer::Escritura;
+
 const METADATA: &str = "https://fonts.google.com/metadata/fonts";
 const LISTA: &str = "https://fonts.google.com/download/list?family=";
 /// El catálogo guardado vale una semana; si no hay red, vale el que haya.
@@ -46,18 +48,26 @@ pub struct Entrada {
     /// «400», «700i»…: para la vista previa grande.
     variantes: Vec<String>,
     disenadores: Vec<String>,
-    /// Trae ideogramas (chino, japonés o coreano): para elegir con qué texto se
-    /// pide la vista previa. Una latina con ideogramas no pinta nada y sale la
-    /// fuente de reserva; una japonesa con texto latino se ve a medias.
-    cjk: bool,
+    /// Qué muestra pedirle a la vista previa: la de la escritura de la familia,
+    /// o vacío en las latinas. Una japonesa con texto chino sale a medias (le
+    /// faltan 轻枪跃过懒) y una latina con ideogramas, entera con la de reserva.
+    muestra: &'static str,
 }
 
-/// ¿La familia trae ideogramas? Se mira `subsets`, que es el dato de Google.
-/// «otros» (script no latino) no sirve: Poppins es devanagari y no tiene hanzi.
-fn trae_ideogramas(f: &Value) -> bool {
-    f["subsets"].as_array().is_some_and(|l| {
-        l.iter().any(|s| matches!(s.as_str(), Some("chinese-simplified" | "chinese-traditional" | "japanese" | "korean")))
-    })
+/// La muestra que le toca a cada familia, mirando sus `subsets`, que es el dato
+/// de Google. «otros» (script no latino) no sirve: Poppins es devanagari y no
+/// tiene hanzi. Aquí no hay cmap que preguntar: las fuentes del catálogo todavía
+/// no están bajadas, y Google recorta lo que le pides sin avisar de lo que falta.
+fn muestra(f: &Value) -> &'static str {
+    const SUBSETS: [(&str, Escritura); 5] = [
+        ("japanese", Escritura::Japonesa),
+        ("korean", Escritura::Coreana),
+        ("chinese-simplified", Escritura::China),
+        ("chinese-traditional", Escritura::Tradicional),
+        ("chinese-hongkong", Escritura::Tradicional),
+    ];
+    let tiene = |s: &str| f["subsets"].as_array().is_some_and(|l| l.iter().any(|x| x.as_str() == Some(s)));
+    SUBSETS.iter().find(|(subset, _)| tiene(subset)).map_or("", |(_, escritura)| escritura.muestra())
 }
 
 fn categoria(f: &Value) -> &'static str {
@@ -91,8 +101,7 @@ fn compactar(v: &Value) -> Vec<Entrada> {
                             .as_array()
                             .map(|l| l.iter().filter_map(|d| d.as_str().map(String::from)).collect())
                             .unwrap_or_default(),
-                        cjk: trae_ideogramas(f),
-                    })
+                        muestra: muestra(f),                    })
                 })
                 .collect()
         })
