@@ -46,6 +46,18 @@ pub struct Entrada {
     /// «400», «700i»…: para la vista previa grande.
     variantes: Vec<String>,
     disenadores: Vec<String>,
+    /// Trae ideogramas (chino, japonés o coreano): para elegir con qué texto se
+    /// pide la vista previa. Una latina con ideogramas no pinta nada y sale la
+    /// fuente de reserva; una japonesa con texto latino se ve a medias.
+    cjk: bool,
+}
+
+/// ¿La familia trae ideogramas? Se mira `subsets`, que es el dato de Google.
+/// «otros» (script no latino) no sirve: Poppins es devanagari y no tiene hanzi.
+fn trae_ideogramas(f: &Value) -> bool {
+    f["subsets"].as_array().is_some_and(|l| {
+        l.iter().any(|s| matches!(s.as_str(), Some("chinese-simplified" | "chinese-traditional" | "japanese" | "korean")))
+    })
 }
 
 fn categoria(f: &Value) -> &'static str {
@@ -79,6 +91,7 @@ fn compactar(v: &Value) -> Vec<Entrada> {
                             .as_array()
                             .map(|l| l.iter().filter_map(|d| d.as_str().map(String::from)).collect())
                             .unwrap_or_default(),
+                        cjk: trae_ideogramas(f),
                     })
                 })
                 .collect()
