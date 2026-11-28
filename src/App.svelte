@@ -27,7 +27,7 @@
   import { avisar } from "./lib/avisos.svelte.js";
   import { fuentes, iniciarFuentes, actualizarFuentes, alternar, desinstalar, ponerCategoria, mostrarEnExplorador, instalar, estiloDe, ponerLista, llamar } from "./lib/fuentes.svelte.js";
   import { biblioteca, iniciarBiblioteca, alternarFavorita, aFavoritas, nuevaColeccion, renombrar, eliminarColeccion, aColeccion, copiaColeccion } from "./lib/biblioteca.svelte.js";
-  import { descubrir, cargarCatalogo, pedirVistas, precargar, instalarGoogle } from "./lib/descubrir.svelte.js";
+  import { descubrir, cargarCatalogo, pedirVistasPorTexto, precargar, instalarGoogle } from "./lib/descubrir.svelte.js";
   import { arrastre, empezarArrastre } from "./lib/arrastre.svelte.js";
   import { comboDe } from "./lib/atajos.js";
 
@@ -98,17 +98,14 @@
   let splash = $state(!sinMovimiento);
   if (!sinMovimiento) setTimeout(() => (splash = false), 800);
 
-  const muestraDefecto = $derived(ajustes.textoPrueba.trim() || t("defaultSample"));
-  const muestra = $derived(muestraPropia || muestraDefecto);
-  // La de las fuentes que no traen ideogramas: con el texto del idioma, esas
-  // se pintarían enteras con la fuente de reserva y dos familias distintas
-  // saldrían iguales. Lo que escriba el usuario se respeta siempre.
+  // La muestra de cada fila: lo que escriba el usuario, si no lo de Ajustes y,
+  // si no, la de la propia fuente. El backend manda la frase de su escritura
+  // (japonesas con texto japonés, coreanas con coreano, tradicionales con
+  // tradicional) y vacía en las latinas, que enseñan el texto de la interfaz:
+  // con la frase de otro idioma media fila saldría con la fuente de reserva.
   const muestraLatin = $derived(t("defaultSampleLatin"));
-  const muestraDe = (f) => muestraPropia || (f.cjk ? muestraDefecto : muestraLatin);
-  // Las de Google todavía no están bajadas, así que el backend manda `cjk`
-  // mirando los subsets de Google: si no trae ideogramas, se pinta el texto
-  // latino (si no, la fila sale entera con la fuente de reserva).
-  const muestraGoogleDe = (g) => muestraPropia || (g.cjk ? muestraDefecto : muestraLatin);
+  const muestraFija = $derived(muestraPropia || ajustes.textoPrueba.trim());
+  const muestraDe = (f) => muestraFija || f.muestra || muestraLatin;
   const tamano = $derived(ajustes.tamano);
   const pasoTamano = (d) => (ajustes.tamano = Math.min(96, Math.max(10, Math.round(ajustes.tamano) + d)));
 
@@ -117,9 +114,6 @@
   const carpeta = $derived(seccion.startsWith("car:") ? seccion.slice(4) : null);
   const detalleF = $derived(detalle ? fuentes.lista.find((f) => f.nombre === detalle) : null);
   const comparadas = $derived(comparar.map((n) => fuentes.lista.find((f) => f.nombre === n)).filter(Boolean));
-  // En el comparador la muestra es una sola para todas: si ninguna trae
-  // ideogramas, se usa la latina.
-  const muestraComparar = $derived(comparadas.length && comparadas.every((f) => !f.cjk) ? muestraLatin : muestra);
 
   const bloqueada = (f) => f.origen === "sis" && (!ajustes.desbloqueadas || f.imprescindible);
   const motivo = (f) => (f.imprescindible ? t("candado.imprescindible") : t("candado.sistema"));
@@ -218,17 +212,14 @@
   );
   const vistaNormal = $derived(!detalleF && !comparadas.length);
 
-  // Vistas previas de Descubrir: solo lo que se ve.
+  // Vistas previas de Descubrir: solo lo que se ve, y agrupadas por la muestra
+  // que le toca a cada familia (una latina con el texto de la interfaz, una
+  // japonesa con el japonés…). Si no, se le piden ideogramas que no tiene y la
+  // fila sale con la fuente de reserva.
   let vistasGoogle = [];
-  // Cada familia pide los caracteres de su muestra: las que traen ideogramas,
-  // la del idioma; las demás, la latina. Si no, a una latina se le piden
-  // ideogramas que no tiene y la fila sale con la fuente de reserva (o en huecos).
   function pedirVistasGoogle(items) {
     if (!items.length) return;
-    const conIdeogramas = items.filter((g) => g.cjk).map((g) => g.nombre);
-    const resto = items.filter((g) => !g.cjk).map((g) => g.nombre);
-    if (resto.length) pedirVistas(resto, muestraPropia || muestraLatin);
-    if (conIdeogramas.length) pedirVistas(conIdeogramas, muestraPropia || muestraDefecto);
+    pedirVistasPorTexto(items, muestraDe);
   }
   function alVerGoogle(items) {
     vistasGoogle = items;
@@ -240,8 +231,8 @@
   }
   $effect(() => {
     // Si cambia el texto de prueba, se pide solo lo que falte de lo que se ve.
-    // (`muestra` se lee aquí a propósito: es la dependencia que dispara el efecto.)
-    const m = muestra;
+    // (`muestraFija` se lee aquí a propósito: es la dependencia que dispara el efecto.)
+    const m = muestraFija;
     if (enDescubrir || seccion === "favoritas") pedirVistasGoogle(vistasGoogle);
   });
 
@@ -442,7 +433,7 @@
     iniciarBiblioteca();
     iniciarActualizador();
     iniciarFuentes();
-    precargar(muestraPropia || muestraLatin, muestraPropia || muestraDefecto);
+    precargar(muestraDe);
     if (!enTauri) return;
     llamar("carpetas").then((l) => (carpetas = l));
     // Lo que se pide desde el menú de la bandeja (la ventana ya está a la vista).
@@ -537,7 +528,7 @@
 {#snippet filaGoogle(g)}
   <FilaGoogle
     {g}
-    muestra={muestraGoogleDe(g)}
+    muestra={muestraDe(g)}
     {tamano}
     instalada={instaladasNombres.has(g.nombre.toLowerCase())}
     pct={descubrir.descargas[g.nombre]}
@@ -552,7 +543,7 @@
   {#if it.google}
     <FilaGoogle
       g={it.google}
-      muestra={muestraGoogleDe(it.google)}
+      muestra={muestraDe(it.google)}
       {tamano}
       sinInstalar
       instalada={false}
@@ -696,7 +687,7 @@
     {#if vistaG}
       <VistaGoogle
         g={vistaG}
-        muestra={muestraGoogleDe(vistaG)}
+        muestra={muestraDe(vistaG)}
         volver={enDescubrir ? t("sec.descubrir") : t("favorites")}
         instalada={instaladasNombres.has(vistaG.nombre.toLowerCase())}
         pct={descubrir.descargas[vistaG.nombre]}
@@ -719,7 +710,7 @@
     {:else if comparadas.length}
       <Comparar
         familias={comparadas}
-        muestra={muestraComparar}
+        muestraDe={muestraDe}
         {tamano}
         onvolver={() => (comparar = [])}
         onquitar={(n) => (comparar = comparar.length <= 2 ? [] : comparar.filter((x) => x !== n))}
