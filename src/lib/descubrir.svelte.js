@@ -64,13 +64,17 @@ export function pedirVistas(familias, texto) {
   }
 }
 
-/** En segundo plano tras abrir: el catálogo y las vistas de las más populares. */
-export function precargar(texto) {
+/** En segundo plano tras abrir: el catálogo y las vistas de las más populares.
+ *  `textoCjk` es la muestra del idioma, solo para las familias con ideogramas. */
+export function precargar(textoLatin, textoCjk = textoLatin) {
   const idle = window.requestIdleCallback ?? ((f) => setTimeout(f, 1200));
   idle(() =>
     cargarCatalogo().then(() => {
-      const top = [...descubrir.lista].sort((a, b) => a.popularidad - b.popularidad).slice(0, 45).map((f) => f.nombre);
-      pedirVistas(top, texto);
+      const top = [...descubrir.lista].sort((a, b) => a.popularidad - b.popularidad).slice(0, 45);
+      const conIdeogramas = top.filter((g) => g.cjk).map((g) => g.nombre);
+      const resto = top.filter((g) => !g.cjk).map((g) => g.nombre);
+      if (resto.length) pedirVistas(resto, textoLatin);
+      if (conIdeogramas.length) pedirVistas(conIdeogramas, textoCjk);
     }),
   );
 }
